@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/roothome"
+    android:background="#fafafa">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="480dp"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:layout_marginTop="-400dp"
+        android:id="@+id/colorheaderhome"
+        android:visibility="visible"
+        android:transitionName="colorheaderset">
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:id="@+id/colorheaderhomeOverlay"
+        android:visibility="visible">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:elevation="4dp"
+        android:id="@+id/iconcontainerheaderhome">
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/titlehome"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:padding="20dp"
+        android:clickable="false"
+        android:elevation="8dp"
+        android:stateListAnimator="@null"
+        android:text="@string/app_name"
+        android:textColor="#ffffff"
+        android:textSize="24dp"
+        android:background="#0000"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible"/>
+    <ScrollView
+        android:id="@+id/homescrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="visible">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="174dp"></RelativeLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</RelativeLayout>
