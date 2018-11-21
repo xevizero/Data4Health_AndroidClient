@@ -65,6 +65,7 @@
         android:elevation="8dp"
         android:stateListAnimator="@null"
         android:text="@string/app_name"
+        android:textAllCaps="false"
         android:textColor="#ffffff"
         android:textSize="24dp"
         android:background="#0000"
