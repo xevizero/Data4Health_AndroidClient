@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/roothome"
+    android:id="@+id/rootregister"
     android:background="#fafafa">
 
     <RelativeLayout
@@ -12,7 +12,7 @@
         android:background="@color/colorPrimary"
         android:elevation="4dp"
         android:layout_marginTop="-400dp"
-        android:id="@+id/colorheaderhome"
+        android:id="@+id/colorheaderregister"
         android:visibility="visible"
         android:transitionName="colorheaderset">
     </RelativeLayout>
@@ -21,7 +21,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="80dp"
-        android:id="@+id/colorheaderhomeOverlay"
+        android:id="@+id/colorheaderregisterOverlay"
         android:visibility="visible">
     </RelativeLayout>
 
@@ -29,10 +29,10 @@
         android:layout_width="fill_parent"
         android:layout_height="80dp"
         android:elevation="4dp"
-        android:id="@+id/iconcontainerheaderhome">
+        android:id="@+id/iconcontainerheaderregister">
 
         <ImageView
-            android:id="@+id/homepageNotificationsButton"
+            android:id="@+id/registerpageNotificationsButton"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:src="@drawable/notifications"
@@ -43,7 +43,7 @@
             android:padding="10dp"
             android:scaleType="centerCrop" />
         <ImageView
-            android:id="@+id/homepageSettingsButton"
+            android:id="@+id/registerpageSettingsButton"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:src="@drawable/settings"
@@ -57,7 +57,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/titlehome"
+        android:id="@+id/titleregister"
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:padding="20dp"
@@ -71,7 +71,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="visible"/>
     <ScrollView
-        android:id="@+id/homescrollview"
+        android:id="@+id/registerscrollview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="visible">
@@ -90,7 +90,7 @@
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageProfileButton">
+                android:id="@+id/registerpageProfileButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -112,7 +112,7 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageProfileName"
+                        android:id="@+id/registerPageProfileName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
@@ -121,10 +121,10 @@
                         android:layout_margin="5dp"
                         android:text="Test Name"/>
                     <TextView
-                        android:id="@+id/homePageProfileText1"
+                        android:id="@+id/registerPageProfileText1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageProfileName"
+                        android:layout_below="@+id/registerPageProfileName"
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
@@ -162,7 +162,7 @@
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageData4HealthButton">
+                android:id="@+id/registerpageData4HealthButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -185,7 +185,7 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageData4HelpText"
+                        android:id="@+id/registerPageData4HelpText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
@@ -194,10 +194,10 @@
                         android:layout_margin="5dp"
                         android:text="Data4Help"/>
                     <TextView
-                        android:id="@+id/homePageData4HelpSubText"
+                        android:id="@+id/registerPageData4HelpSubText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageData4HelpText"
+                        android:layout_below="@+id/registerPageData4HelpText"
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
@@ -236,7 +236,7 @@
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageAutomatedSOSButton">
+                android:id="@+id/registerpageAutomatedSOSButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -259,7 +259,7 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageAutomatedSOSText"
+                        android:id="@+id/registerPageAutomatedSOSText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
@@ -268,10 +268,10 @@
                         android:layout_margin="5dp"
                         android:text="AutomatedSOS"/>
                     <TextView
-                        android:id="@+id/homePageAutomatedSOSSubText"
+                        android:id="@+id/registerPageAutomatedSOSSubText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageAutomatedSOSText"
+                        android:layout_below="@+id/registerPageAutomatedSOSText"
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
@@ -309,7 +309,7 @@
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageTrack4RunButton">
+                android:id="@+id/registerpageTrack4RunButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -332,7 +332,7 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageTrack4RunText"
+                        android:id="@+id/registerPageTrack4RunText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
@@ -341,10 +341,10 @@
                         android:layout_margin="5dp"
                         android:text="Track4Run"/>
                     <TextView
-                        android:id="@+id/homePageTrack4RunSubText"
+                        android:id="@+id/registerPageTrack4RunSubText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageTrack4RunText"
+                        android:layout_below="@+id/registerPageTrack4RunText"
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
@@ -376,7 +376,7 @@
                 android:layout_marginRight="20dp"
                 android:background="@color/grey"/>
             <ScrollView
-                android:id="@+id/homePeoplescrollview"
+                android:id="@+id/registerPeoplescrollview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:visibility="visible">
@@ -389,7 +389,7 @@
                         android:layout_height="100dp"
                         android:gravity="center">
                         <TextView
-                            android:id="@+id/homePagePeopleText"
+                            android:id="@+id/registerPagePeopleText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
@@ -404,7 +404,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center">
                         <android.support.design.widget.FloatingActionButton
-                            android:id="@+id/homePageAddFriendButton"
+                            android:id="@+id/registerPageAddFriendButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end|bottom"
