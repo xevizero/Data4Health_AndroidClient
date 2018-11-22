@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/roothome"
+    android:id="@+id/rootprofile"
     android:background="#fafafa">
 
     <RelativeLayout
@@ -12,7 +12,7 @@
         android:background="@color/colorPrimary"
         android:elevation="4dp"
         android:layout_marginTop="-400dp"
-        android:id="@+id/colorheaderhome"
+        android:id="@+id/colorheaderprofile"
         android:visibility="visible"
         android:transitionName="colorheaderset">
     </RelativeLayout>
@@ -21,7 +21,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="80dp"
-        android:id="@+id/colorheaderhomeOverlay"
+        android:id="@+id/colorheaderprofileOverlay"
         android:visibility="visible">
     </RelativeLayout>
 
@@ -29,24 +29,13 @@
         android:layout_width="fill_parent"
         android:layout_height="80dp"
         android:elevation="4dp"
-        android:id="@+id/iconcontainerheaderhome">
+        android:id="@+id/iconcontainerheaderprofile">
 
         <ImageView
-            android:id="@+id/homepageNotificationsButton"
+            android:id="@+id/profilepageSettingsButton"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:src="@drawable/notifications"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_margin="20dp"
-            android:visibility="visible"
-            android:padding="10dp"
-            android:scaleType="centerCrop" />
-        <ImageView
-            android:id="@+id/homepageSettingsButton"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:src="@drawable/settings"
+            android:src="@drawable/contacts"
             android:layout_alignParentTop="true"
             android:layout_margin="20dp"
             android:layout_alignParentRight="true"
@@ -57,14 +46,14 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/titlehome"
+        android:id="@+id/titleprofile"
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:padding="20dp"
         android:clickable="false"
         android:elevation="8dp"
         android:stateListAnimator="@null"
-        android:text="@string/app_name"
+        android:text="Profile"
         android:textAllCaps="false"
         android:textColor="#ffffff"
         android:textSize="24dp"
@@ -72,7 +61,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="visible"/>
     <ScrollView
-        android:id="@+id/homescrollview"
+        android:id="@+id/profilescrollview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="visible">
@@ -86,26 +75,27 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="150dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageProfileButton">
+                android:id="@+id/profilepageProfileButton">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.1"/>
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.3">
                     <ImageView
+                        android:id="@+id/profilePageProfilePicture"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="10dp"
-                        android:visibility="visible"
-                        android:padding="10dp"
-                        android:scaleType="centerCrop" />
+                        android:src="@mipmap/ic_launcher_round"
+                        android:scaleType="fitCenter" />
                 </LinearLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -113,7 +103,7 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageProfileName"
+                        android:id="@+id/profilePageProfileName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
@@ -122,31 +112,41 @@
                         android:layout_margin="5dp"
                         android:text="Test Name"/>
                     <TextView
-                        android:id="@+id/homePageProfileText1"
+                        android:id="@+id/profilePageProfileText1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageProfileName"
+                        android:layout_below="@+id/profilePageProfileName"
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
                         android:layout_margin="5dp"
-                        android:text="Tap to see your profile"/>
+                        android:text="Sex, Age"/>
+
+                    <TextView
+                        android:id="@+id/profilePageProfileText2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/profilePageProfileText1"
+                        android:textAlignment="textEnd"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:layout_margin="5dp"
+                        android:text="City"/>
+                    <TextView
+                        android:id="@+id/profilePageProfileText3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/profilePageProfileText2"
+                        android:textAlignment="textEnd"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:layout_margin="5dp"
+                        android:text="Subscription status"/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2">
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:src="@drawable/arrow_right"
-                        android:layout_alignParentTop="true"
-                        android:layout_margin="20dp"
-                        android:layout_alignParentRight="true"
-                        android:visibility="visible"
-                        android:padding="5dp"
-                        android:scaleType="centerCrop"/>
-                </LinearLayout>
+                    android:layout_weight="0.1"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -163,154 +163,11 @@
                 android:weightSum="1"
                 android:background="@drawable/rippletransparent"
                 android:clickable="true"
-                android:id="@+id/homepageData4HealthButton">
+                android:id="@+id/profilepageData4HealthButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.3">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/medic1"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="10dp"
-                        android:visibility="visible"
-                        android:padding="10dp"
-                        android:scaleType="centerCrop" />
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:layout_gravity="center">
-                    <TextView
-                        android:id="@+id/homePageData4HelpText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAlignment="textEnd"
-                        android:textColor="#000000"
-                        android:textSize="20dp"
-                        android:layout_margin="5dp"
-                        android:text="Data4Help"/>
-                    <TextView
-                        android:id="@+id/homePageData4HelpSubText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageData4HelpText"
-                        android:textAlignment="textEnd"
-                        android:textColor="#000000"
-                        android:textSize="15dp"
-                        android:layout_margin="5dp"
-                        android:text="Health updates and caretaking"/>
-                </RelativeLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2">
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:src="@drawable/arrow_right"
-                        android:layout_alignParentTop="true"
-                        android:layout_margin="20dp"
-                        android:layout_alignParentRight="true"
-                        android:visibility="visible"
-                        android:padding="5dp"
-                        android:scaleType="centerCrop"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:background="@color/lightGrey"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="horizontal"
-                android:weightSum="1"
-                android:background="@drawable/rippletransparent"
-                android:clickable="true"
-                android:id="@+id/homepageAutomatedSOSButton">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.3">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/medic2"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="10dp"
-                        android:visibility="visible"
-                        android:padding="10dp"
-                        android:scaleType="centerCrop" />
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:layout_gravity="center">
-                    <TextView
-                        android:id="@+id/homePageAutomatedSOSText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAlignment="textEnd"
-                        android:textColor="#000000"
-                        android:textSize="20dp"
-                        android:layout_margin="5dp"
-                        android:text="AutomatedSOS"/>
-                    <TextView
-                        android:id="@+id/homePageAutomatedSOSSubText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageAutomatedSOSText"
-                        android:textAlignment="textEnd"
-                        android:textColor="#000000"
-                        android:textSize="15dp"
-                        android:layout_margin="5dp"
-                        android:text="A lifesaver in your pocket"/>
-                </RelativeLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2">
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:src="@drawable/arrow_right"
-                        android:layout_alignParentTop="true"
-                        android:layout_margin="20dp"
-                        android:layout_alignParentRight="true"
-                        android:visibility="visible"
-                        android:padding="5dp"
-                        android:scaleType="centerCrop"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:background="@color/lightGrey"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="horizontal"
-                android:weightSum="1"
-                android:background="@drawable/rippletransparent"
-                android:clickable="true"
-                android:id="@+id/homepageTrack4RunButton">
+                    android:layout_weight="0.1"/>
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -333,91 +190,170 @@
                     android:layout_weight="0.5"
                     android:layout_gravity="center">
                     <TextView
-                        android:id="@+id/homePageTrack4RunText"
+                        android:id="@+id/profileHeartbeatText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAlignment="textEnd"
+                        android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
-                        android:text="Track4Run"/>
+                        android:text="Average Heartbeat\n(12hours)"/>
                     <TextView
-                        android:id="@+id/homePageTrack4RunSubText"
+                        android:id="@+id/profilePageHeartbeatSubText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/homePageTrack4RunText"
-                        android:textAlignment="textEnd"
+                        android:layout_below="@+id/profileHeartbeatText"
+                        android:textAlignment="center"
                         android:textColor="#000000"
-                        android:textSize="15dp"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
                         android:layout_margin="5dp"
-                        android:text="Create, join or spectate events"/>
+                        android:text="89"/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2">
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:src="@drawable/arrow_right"
-                        android:layout_alignParentTop="true"
-                        android:layout_margin="20dp"
-                        android:layout_alignParentRight="true"
-                        android:visibility="visible"
-                        android:padding="5dp"
-                        android:scaleType="centerCrop"/>
-                </LinearLayout>
+                    android:layout_weight="0.1"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
+                android:layout_height="3dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:background="@color/grey"/>
-            <ScrollView
-                android:id="@+id/homePeoplescrollview"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:visibility="visible">
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@color/lightGrey"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:weightSum="1"
+                android:background="@drawable/rippletransparent"
+                android:clickable="true"
+                android:id="@+id/profilepageAutomatedSOSButton">
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="100dp"
-                        android:gravity="center">
-                        <TextView
-                            android:id="@+id/homePagePeopleText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAlignment="center"
-                            android:textColor="#000000"
-                            android:textSize="15dp"
-                            android:paddingLeft="20dp"
-                            android:layout_margin="10dp"
-                            android:text="People"/>
-                    </RelativeLayout>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    android:layout_weight="0.1"/>
+
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:layout_gravity="center">
+                    <TextView
+                        android:id="@+id/profilePageStepsText"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center">
-                        <android.support.design.widget.FloatingActionButton
-                            android:id="@+id/homePageAddFriendButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end|bottom"
-                            app:fabCustomSize="56dp"
-                            android:clickable="true"
-                            android:background="@drawable/ripplecircleaccent"
-                            app:rippleColor="@color/colorPrimaryDark"
-                            android:src="@drawable/plus"
-                            android:layout_margin="10dp" />
-                    </LinearLayout>
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="20dp"
+                        android:layout_margin="5dp"
+                        android:text="Total Steps\n(Today)"/>
+                    <TextView
+                        android:id="@+id/profilePageStepsSubText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/profilePageStepsText"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:layout_margin="5dp"
+                        android:text="3205"/>
+                </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginTop="10dp"
+                        android:padding="10dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/steps"
+                        android:visibility="visible" />
                 </LinearLayout>
-            </ScrollView>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.1"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@color/lightGrey"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:weightSum="1"
+                android:background="@drawable/rippletransparent"
+                android:clickable="true"
+                android:id="@+id/profilepageTrack4RunButton">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.1"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/medic2"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginTop="10dp"
+                        android:visibility="visible"
+                        android:padding="10dp"
+                        android:scaleType="centerCrop" />
+                </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:layout_gravity="center">
+                    <TextView
+                        android:id="@+id/profilePageAlertsText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="20dp"
+                        android:layout_margin="5dp"
+                        android:text="Recent Alerts\n(AutomatedSOS)"/>
+                    <TextView
+                        android:id="@+id/profilePageAlertsSubText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/profilePageAlertsText"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:layout_margin="5dp"
+                        android:text="None"/>
+                </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.1"/>
+            </LinearLayout>
+
         </LinearLayout>
 
 

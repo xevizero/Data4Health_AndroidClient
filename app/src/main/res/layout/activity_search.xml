@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootsearch"
+    android:background="#fafafa">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="480dp"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:layout_marginTop="-400dp"
+        android:id="@+id/colorheadersearch"
+        android:visibility="visible"
+        android:transitionName="colorheaderset">
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:id="@+id/colorheadersearchOverlay"
+        android:visibility="visible">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:elevation="4dp"
+        android:id="@+id/iconcontainerheadersearch">
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/titlesearch"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:padding="20dp"
+        android:clickable="false"
+        android:elevation="8dp"
+        android:stateListAnimator="@null"
+        android:text="Search"
+        android:textAllCaps="false"
+        android:textColor="#ffffff"
+        android:textSize="24dp"
+        android:background="#0000"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible"/>
+    <ScrollView
+        android:id="@+id/searchscrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="visible">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="84dp"/>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="70dp">
+                <EditText
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:backgroundTint="#0000"
+                    android:textColor="@color/darkGrey"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="40dp"
+                    android:inputType="text"
+                    android:textColorHint="@color/grey"
+                    android:id="@+id/searchEditText"
+                    android:hint="Search for people or events"/>
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/search"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_alignParentRight="true"
+                    android:visibility="visible"
+                    android:scaleType="centerCrop"
+                    android:clickable="true"
+                    android:background="@drawable/rippletransparent"/>
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/lightGrey"/>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="70dp">
+                <TextView
+                    android:id="@+id/homePageData4HelpText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/darkGrey"
+                    android:textSize="20dp"
+                    android:text="People you may know"/>
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/lightGrey"/>
+        </LinearLayout>
+
+
+    </ScrollView>
+</RelativeLayout>
