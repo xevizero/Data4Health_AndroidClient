@@ -8,5 +8,6 @@
     <color name="grey">#a6a6a6</color>
     <color name="darkGrey">#606060</color>
     <color name="colorSecondaryDark">#330009</color>
+    <color name="transparent">#0000</color>
 
 </resources>

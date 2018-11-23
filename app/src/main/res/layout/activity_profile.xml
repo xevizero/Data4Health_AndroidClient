@@ -41,7 +41,9 @@
             android:layout_alignParentRight="true"
             android:visibility="visible"
             android:padding="10dp"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:background="@drawable/ripplecircleprimary"
+            android:clickable="true"/>
 
     </RelativeLayout>
 
@@ -78,7 +80,7 @@
                 android:layout_height="150dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/profilepageProfileButton">
                 <LinearLayout
@@ -161,7 +163,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/profilepageData4HealthButton">
                 <LinearLayout
@@ -229,7 +231,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/profilepageAutomatedSOSButton">
                 <LinearLayout
@@ -299,7 +301,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/profilepageTrack4RunButton">
                 <LinearLayout

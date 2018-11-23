@@ -41,6 +41,8 @@
             android:layout_margin="20dp"
             android:visibility="visible"
             android:padding="10dp"
+            android:background="@drawable/ripplecircleprimary"
+            android:clickable="true"
             android:scaleType="centerCrop" />
         <ImageView
             android:id="@+id/homepageSettingsButton"
@@ -52,7 +54,9 @@
             android:layout_alignParentRight="true"
             android:visibility="visible"
             android:padding="10dp"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:background="@drawable/ripplecircleprimary"
+            android:clickable="true"/>
 
     </RelativeLayout>
 
@@ -89,7 +93,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/homepageProfileButton">
                 <LinearLayout
@@ -161,7 +165,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/homepageData4HealthButton">
                 <LinearLayout
@@ -235,7 +239,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/homepageAutomatedSOSButton">
                 <LinearLayout
@@ -308,7 +312,7 @@
                 android:layout_height="100dp"
                 android:orientation="horizontal"
                 android:weightSum="1"
-                android:background="@drawable/rippletransparent"
+                android:background="@drawable/ripplewhite"
                 android:clickable="true"
                 android:id="@+id/homepageTrack4RunButton">
                 <LinearLayout

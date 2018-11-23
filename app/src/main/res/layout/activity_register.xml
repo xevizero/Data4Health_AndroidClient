@@ -154,6 +154,20 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:text="Your sex is:"/>
+            <Spinner
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinnersexregister"
+                android:gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:layout_margin="20dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/darkGrey"
+                android:textSize="20dp"
+                android:layout_margin="20dp"
                 android:text="Now choose a password:"/>
             <EditText
                 android:layout_height="wrap_content"

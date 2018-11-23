@@ -82,7 +82,7 @@
                     android:visibility="visible"
                     android:scaleType="centerCrop"
                     android:clickable="true"
-                    android:background="@drawable/rippletransparent"/>
+                    android:background="@drawable/ripplecirclewhite"/>
             </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
