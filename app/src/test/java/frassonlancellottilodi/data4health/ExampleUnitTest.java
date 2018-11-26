@@ -1,4 +1,4 @@
-package frassonlancellottilodi.data4health_androidclient;
+package frassonlancellottilodi.data4health;
 
 import org.junit.Test;
 

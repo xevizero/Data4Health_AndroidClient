@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="frassonlancellottilodi.data4health_androidclient">
+    package="frassonlancellottilodi.data4health">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -11,17 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".HomeActivity">
+        <activity android:name="frassonlancellottilodi.data4health.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".NotificationsActivity" />
-        <activity android:name=".SearchActivity" />
+        <activity android:name="frassonlancellottilodi.data4health.RegisterActivity" />
+        <activity android:name="frassonlancellottilodi.data4health.ProfileActivity" />
+        <activity android:name="frassonlancellottilodi.data4health.NotificationsActivity" />
+        <activity android:name="frassonlancellottilodi.data4health.SearchActivity" />
     </application>
 
 </manifest>

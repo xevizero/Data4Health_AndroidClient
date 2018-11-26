@@ -1,4 +1,4 @@
-package frassonlancellottilodi.data4health_androidclient.viewModel;
+package frassonlancellottilodi.data4health.viewModel;
 
 import android.arch.lifecycle.ViewModel;
 

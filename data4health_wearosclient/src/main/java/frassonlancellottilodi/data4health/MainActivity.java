@@ -1,15 +1,17 @@
-package frassonlancellottilodi.data4health_androidclient;
+package frassonlancellottilodi.data4health;
+
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.wear.ambient.AmbientModeSupport;
+import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -22,7 +24,6 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.HistoryApi;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
@@ -34,13 +35,20 @@ import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataSourcesRequest;
 import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
-import com.google.android.gms.fitness.result.DailyTotalResult;
-import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.text.DateFormat;
@@ -49,40 +57,42 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import frassonlancellottilodi.data4health_androidclient.viewModel.homePageVM;
+import frassonlancellottilodi.data4health.utils.ListenerService;
 
-import static com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA;
-import static com.google.android.gms.fitness.data.Field.FIELD_STEPS;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-
-public class HomeActivity extends android.support.v4.app.FragmentActivity  implements OnDataPointListener,
+public class MainActivity extends WearableActivity   implements OnDataPointListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        AmbientModeSupport.AmbientCallbackProvider,
+        DataClient.OnDataChangedListener,
+        MessageClient.OnMessageReceivedListener,
+        CapabilityClient.OnCapabilityChangedListener{
+
+    private TextView mTextView;
 
 
-    ViewModel viewModel;
-    Button titleView;
-
-    private static final String START_ACTIVITY = "/start_activity";
     private static final String TAG = "CCC";
     private static final String AUTH_PENDING = "isAuthPending";
     GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        viewModel = ViewModelProviders.of(this).get(homePageVM.class);
-        titleView = findViewById(R.id.titlehome);
-        //authInProgress code is useful because the onStop may be called while authentication is not complete.
-        //In such case this tells it to complete it
+        setContentView(R.layout.activity_main);
+
+        mTextView = findViewById(R.id.text);
+
+        // Enables Always-on
+        setAmbientEnabled();
+
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
+        //startService(new Intent(this, ListenerService.class));
+
     }
 
     @Override
@@ -106,6 +116,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
 //without GOOGLE_SIGN_IN_API, RESULT_CANCELED is always the output
 //The new version of google Fit requires that the user authenticates with gmail account
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addApi(Wearable.API)
                 .addConnectionCallbacks(connectionCallbacks)
                 .addOnConnectionFailedListener(failedListener)
                 .addApi(Fitness.HISTORY_API)
@@ -135,11 +146,22 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
 
-
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "onConnected called");
+
+        //WEARABLE
+        String WEARABLE_DATA_PATH = "/wearable_data";
+
+        // Create a DataMap object and send it to the data layer
+        DataMap dataMap = new DataMap();
+        dataMap.putLong("time", new Date().getTime());
+        dataMap.putString("hole", "1");
+        dataMap.putString("front", "250");
+        dataMap.putString("middle", "260");
+        dataMap.putString("back", "270");
+        //Requires a new thread to avoid blocking the UI
+        new SendToDataLayerThread(WEARABLE_DATA_PATH, dataMap).start();
 
 
 
@@ -148,6 +170,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
                 .setDataSourceTypes(DataSource.TYPE_DERIVED)
                 .build();
         Log.d(TAG, "DataSourcetype: " + dataSourceRequest.getDataTypes().toString());
+
 
         ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
             @Override
@@ -164,11 +187,12 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
 
         Fitness.SensorsApi.findDataSources(googleApiClient, dataSourceRequest)
                 .setResultCallback(dataSourcesResultCallback);
+
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
         cal.setTime(now);
         long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.WEEK_OF_YEAR, -12);
+        cal.add(Calendar.WEEK_OF_YEAR, -52);
         long startTime = cal.getTimeInMillis();
 
         PendingResult<DataReadResult> result = Fitness.HistoryApi.readData(googleApiClient, new DataReadRequest.Builder()
@@ -193,7 +217,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         if( !authInProgress ) {
-            Log.d(TAG, "!AUTHINPROG");
+            Log.d(TAG, "!AUTHINPROG" +connectionResult.getErrorCode());
             try {
                 authInProgress = true;
                 connectionResult.startResolutionForResult(this, 1);
@@ -219,9 +243,11 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
                     public void onResult(Status status) {
                         if (status.isSuccess()) {
                             Log.d(TAG, "SensorApi successfully added" );
+
                         }
                     }
                 });
+
     }
 
     @Override
@@ -232,7 +258,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(HomeActivity.this, "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -259,9 +285,21 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
 
+    // Disconnect from the data layer when the Activity stops
+    @Override
+    protected void onStop() {
+        Log.d(TAG, "onStop called");
+/*
+        if (null != googleApiClient && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }*/
+        super.onStop();
+    }
+
+
     @Override
     protected void onDestroy() {
-        Log.d(TAG, "Onstop called");
+        Log.d(TAG, "onDestroy called");
         super.onDestroy();
 
         Fitness.SensorsApi.remove( googleApiClient, this )
@@ -327,5 +365,88 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
             }
         }
     }
+
+    @Override
+    public AmbientModeSupport.AmbientCallback getAmbientCallback() {
+        return null;
+    }
+
+    @Override
+    public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
+
+    }
+
+    private static final String WEARABLE_DATA_PATH = "/wearable_data";
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+        Log.d("data", "changedactivity");
+
+        DataMap dataMap;
+        for (DataEvent event : dataEventBuffer) {
+            Log.d("data", "received");
+
+            // Check the data type
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // Check the data path
+                String path = event.getDataItem().getUri().getPath();
+                if (path.equals(WEARABLE_DATA_PATH)) {}
+                dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
+                Log.v("myTag", "DataMap received on watch: " + dataMap);
+            }
+        }
+    }
+
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
+        Log.d(TAG, "onMessageReceived: " + messageEvent);
+    }
     // [END parse_dataset]
+
+    class SendToDataLayerThread extends Thread {
+        String path;
+        DataMap dataMap;
+
+        // Constructor for sending data objects to the data layer
+        SendToDataLayerThread(String p, DataMap data) {
+            path = p;
+            dataMap = data;
+        }
+
+        public void run() {
+            // Construct a DataRequest and send over the data layer
+            PutDataMapRequest putDMR = PutDataMapRequest.create(path);
+            putDMR.getDataMap().putAll(dataMap);
+            PutDataRequest request = putDMR.asPutDataRequest();
+            DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleApiClient, request).await();
+            if (result.getStatus().isSuccess()) {
+                Log.v("myTag", "DataMap: " + dataMap + " sent successfully to data layer ");
+            }
+            else {
+                // Log an error
+                Log.v("myTag", "ERROR: failed to send DataMap to data layer");
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Instantiates clients without member variables, as clients are inexpensive to create and
+        // won't lose their listeners. (They are cached and shared between GoogleApi instances.)
+        Wearable.getDataClient(this).addListener(this);
+        Wearable.getMessageClient(this).addListener(this);
+        Wearable.getCapabilityClient(this)
+                .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Wearable.getDataClient(this).removeListener(this);
+        Wearable.getMessageClient(this).removeListener(this);
+        Wearable.getCapabilityClient(this).removeListener(this);
+    }
 }

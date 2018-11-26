@@ -1,4 +1,4 @@
-package frassonlancellottilodi.data4health_androidclient;
+package frassonlancellottilodi.data4health;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

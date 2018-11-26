@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="frassonlancellottilodi.data4health_wearosclient">
+    package="frassonlancellottilodi.data4health">
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -24,7 +24,7 @@
             android:value="true" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="frassonlancellottilodi.data4health.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,9 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".utils.WearableListener">
+        <service android:name="frassonlancellottilodi.data4health.utils.ListenerService">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/wearable_data" />
             </intent-filter>
         </service>
     </application>
