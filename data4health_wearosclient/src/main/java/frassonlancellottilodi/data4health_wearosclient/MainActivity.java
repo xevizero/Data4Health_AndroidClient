@@ -1,15 +1,16 @@
-package frassonlancellottilodi.data4health_androidclient;
+package frassonlancellottilodi.data4health_wearosclient;
+
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -35,12 +36,8 @@ import com.google.android.gms.fitness.request.DataSourcesRequest;
 import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
-import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.text.DateFormat;
@@ -49,40 +46,35 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import frassonlancellottilodi.data4health_androidclient.viewModel.homePageVM;
-
-import static com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA;
-import static com.google.android.gms.fitness.data.Field.FIELD_STEPS;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-
-public class HomeActivity extends android.support.v4.app.FragmentActivity  implements OnDataPointListener,
+public class MainActivity extends WearableActivity   implements OnDataPointListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    private TextView mTextView;
 
-    ViewModel viewModel;
-    Button titleView;
 
-    private static final String START_ACTIVITY = "/start_activity";
     private static final String TAG = "CCC";
     private static final String AUTH_PENDING = "isAuthPending";
     GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        viewModel = ViewModelProviders.of(this).get(homePageVM.class);
-        titleView = findViewById(R.id.titlehome);
-        //authInProgress code is useful because the onStop may be called while authentication is not complete.
-        //In such case this tells it to complete it
+        setContentView(R.layout.activity_main);
+
+        mTextView = findViewById(R.id.text);
+
+        // Enables Always-on
+        setAmbientEnabled();
+
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
+
     }
 
     @Override
@@ -106,6 +98,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
 //without GOOGLE_SIGN_IN_API, RESULT_CANCELED is always the output
 //The new version of google Fit requires that the user authenticates with gmail account
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addApi(Wearable.API)
                 .addConnectionCallbacks(connectionCallbacks)
                 .addOnConnectionFailedListener(failedListener)
                 .addApi(Fitness.HISTORY_API)
@@ -135,19 +128,15 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
 
-
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "onConnected called");
-
-
-
         DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
                 .setDataTypes(DataType.TYPE_STEP_COUNT_CUMULATIVE)
                 .setDataSourceTypes(DataSource.TYPE_DERIVED)
                 .build();
         Log.d(TAG, "DataSourcetype: " + dataSourceRequest.getDataTypes().toString());
+
 
         ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
             @Override
@@ -164,11 +153,12 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
 
         Fitness.SensorsApi.findDataSources(googleApiClient, dataSourceRequest)
                 .setResultCallback(dataSourcesResultCallback);
+
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
         cal.setTime(now);
         long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.WEEK_OF_YEAR, -12);
+        cal.add(Calendar.WEEK_OF_YEAR, -52);
         long startTime = cal.getTimeInMillis();
 
         PendingResult<DataReadResult> result = Fitness.HistoryApi.readData(googleApiClient, new DataReadRequest.Builder()
@@ -193,7 +183,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         if( !authInProgress ) {
-            Log.d(TAG, "!AUTHINPROG");
+            Log.d(TAG, "!AUTHINPROG" +connectionResult.getErrorCode());
             try {
                 authInProgress = true;
                 connectionResult.startResolutionForResult(this, 1);
@@ -219,9 +209,11 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
                     public void onResult(Status status) {
                         if (status.isSuccess()) {
                             Log.d(TAG, "SensorApi successfully added" );
+
                         }
                     }
                 });
+
     }
 
     @Override
@@ -232,7 +224,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(HomeActivity.this, "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -260,9 +252,9 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
         Log.d(TAG, "Onstop called");
-        super.onDestroy();
+        super.onStop();
 
         Fitness.SensorsApi.remove( googleApiClient, this )
                 .setResultCallback(new ResultCallback<Status>() {
@@ -328,4 +320,5 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
     // [END parse_dataset]
+
 }

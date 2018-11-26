@@ -37,7 +37,8 @@ dependencies {
     implementation "android.arch.lifecycle:common-java8:$lifecycle_version"
 
 
+    implementation 'com.google.android.gms:play-services-wearable:16.0.1'
 
-    implementation 'com.google.android.gms:play-services-fitness:15.0.1'
-    implementation 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.google.android.gms:play-services-fitness:16.0.1'
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
 }
