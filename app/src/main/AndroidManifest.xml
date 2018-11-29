@@ -3,6 +3,9 @@
     package="frassonlancellottilodi.data4health">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -10,17 +13,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name="frassonlancellottilodi.data4health.HomeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".HomeActivity">
+
         </activity>
-        <activity android:name="frassonlancellottilodi.data4health.RegisterActivity" />
-        <activity android:name="frassonlancellottilodi.data4health.ProfileActivity" />
-        <activity android:name="frassonlancellottilodi.data4health.NotificationsActivity" />
-        <activity android:name="frassonlancellottilodi.data4health.SearchActivity" />
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".NotificationsActivity" />
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".LoginActivity">  <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter></activity>
     </application>
 
 </manifest>

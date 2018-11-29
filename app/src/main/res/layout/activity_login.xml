@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootlogin"
+    android:background="#fafafa">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="600dp"
+        android:background="@color/colorSecondaryDark"
+        android:elevation="4dp"
+        android:layout_marginTop="-300dp"
+        android:id="@+id/colorheaderlogin"
+        android:visibility="visible"
+        android:transitionName="colorheaderset">
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="300dp"
+        android:id="@+id/colorheaderloginOverlay"
+        android:visibility="visible">
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:src="@mipmap/ic_launcher"
+        android:elevation="6dp"
+        android:layout_alignTop="@id/buttonlogin"
+        android:layout_marginTop="-210dp"
+        android:layout_centerHorizontal="true"/>
+    <TextView
+        android:id="@+id/titleLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:textSize="40dp"
+        android:elevation="6dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignTop="@id/buttonlogin"
+        android:layout_marginTop="-70dp"
+        android:text="Data4Health"/>
+    <Button
+        android:id="@+id/buttonlogin"
+        android:layout_width="wrap_content"
+        android:layout_height="68dp"
+        android:padding="20dp"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:layout_alignBottom="@+id/colorheaderloginOverlay"
+        android:stateListAnimator="@null"
+        android:layout_marginBottom="-34dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:text="Log in"
+        android:textColor="#ffffff"
+        android:textAllCaps="false"
+        android:textSize="22dp"
+        android:background="@drawable/ripplecolorprimary"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible" />
+    <com.github.ksoichiro.android.observablescrollview.ObservableScrollView
+        android:id="@+id/loginscrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="visible">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="334dp"></RelativeLayout>
+
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:backgroundTint="@color/darkGrey"
+                android:paddingLeft="16dp"
+                android:layout_margin="20dp"
+                android:textColor="@color/darkGrey"
+                android:inputType="textEmailAddress"
+                android:textColorHint="@color/grey"
+                android:id="@+id/emailLoginEditText"
+                android:hint="Email"/>
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:backgroundTint="@color/darkGrey"
+                android:paddingLeft="16dp"
+                android:layout_margin="20dp"
+                android:textColor="@color/darkGrey"
+                android:inputType="textPassword"
+                android:textColorHint="@color/grey"
+                android:id="@+id/passwordLoginEditText"
+                android:hint="Password"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:background="@color/darkGrey"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/darkGrey"
+                android:textSize="20dp"
+                android:layout_margin="20dp"
+                android:text="Are you a developer? Additional functionality is available on our web portal."/>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="50dp">
+                <Button
+                    android:id="@+id/loginWebsiteLinkButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Visit our website"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="@color/white"
+                    android:layout_centerHorizontal="true"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="30dp"/>
+
+
+
+        </LinearLayout>
+
+    </com.github.ksoichiro.android.observablescrollview.ObservableScrollView>
+</RelativeLayout>

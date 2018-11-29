@@ -3,8 +3,11 @@ package frassonlancellottilodi.data4health;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -38,6 +41,7 @@ import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
@@ -56,6 +60,8 @@ import frassonlancellottilodi.data4health.viewModel.homePageVM;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+
+//adb -d forward tcp:5601 tcp:5601
 
 public class HomeActivity extends android.support.v4.app.FragmentActivity  implements OnDataPointListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -83,6 +89,10 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
+        SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor  mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == null));
+        Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)));
     }
 
     @Override

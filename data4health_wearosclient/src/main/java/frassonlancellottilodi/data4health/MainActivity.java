@@ -1,13 +1,19 @@
 package frassonlancellottilodi.data4health;
 
 
-import android.app.Activity;
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.wear.ambient.AmbientModeSupport;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
@@ -62,7 +68,7 @@ import frassonlancellottilodi.data4health.utils.ListenerService;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class MainActivity extends WearableActivity   implements OnDataPointListener,
+public class MainActivity extends WearableActivity implements OnDataPointListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         AmbientModeSupport.AmbientCallbackProvider,
@@ -78,6 +84,11 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
     GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
 
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
+    private int maxdelay = 0;
+    private final int MY_PERMISSIONS_REQUEST_BODY_SENSOR = 202;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,12 +99,85 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
         // Enables Always-on
         setAmbientEnabled();
 
-        if (savedInstanceState != null) {
-            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
+
+        if (checkSelfPermission(Manifest.permission.BODY_SENSORS)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "NOT ALREADY GRANTED");
+            requestPermissions(new String[]{Manifest.permission.BODY_SENSORS},
+                    MY_PERMISSIONS_REQUEST_BODY_SENSOR);
+
+        } else {
+            Log.d(TAG, "ALREADY GRANTED");
         }
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == null));
+        Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)));
+
+        mSensorManager.registerListener(
+                getmListener(), mSensor, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
         //startService(new Intent(this, ListenerService.class));
 
     }
+
+    private int mSteps, mCounterSteps, mPreviousCounterSteps;
+
+
+    private SensorEventListener getmListener(){
+        Log.d(TAG, "HERES");
+
+
+        final SensorEventListener mListener = new SensorEventListener() {
+
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                Log.d(TAG, "HERE");
+                // BEGIN_INCLUDE(sensorevent)
+                // store the delay of this event
+                //recordDelay(event);
+                //final String delayString = getDelayString();
+
+                if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+                    // A step detector event is received for each step.
+                    // This means we need to count steps ourselves
+
+                    mSteps += event.values.length;
+
+                    Log.i(TAG,
+                            "New step detected by STEP_DETECTOR sensor. Total step count: " + mSteps);
+
+                } else if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+
+                    /*
+                    A step counter event contains the total number of steps since the listener
+                    was first registered. We need to keep track of this initial value to calculate the
+                    number of steps taken, as the first value a listener receives is undefined.
+                     */
+                    if (mCounterSteps < 1) {
+                        // initial value
+                        mCounterSteps = (int) event.values[0];
+                    }
+
+                    // Calculate steps taken based on first counter value received.
+                    mSteps = (int) event.values[0] - mCounterSteps;
+
+                    // Add the number of steps previously taken, otherwise the counter would start at 0.
+                    // This is needed to keep the counter consistent across rotation changes.
+                    mSteps = mSteps + mPreviousCounterSteps;
+
+                    Log.i(TAG, "New step detected by STEP_COUNTER sensor. Total step count: " + mSteps);
+                    // END_INCLUDE(sensorevent)
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+        return mListener;
+    };
 
     @Override
     protected void onStart() {
@@ -102,10 +186,11 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
         //when they are called in onCreate, when the permission fragment opens up, onStop gets called which disconnects the api client.
         //after which it needs to be reConnected which does not happen as the apiClient is built in onCreate
         //Hence these should be called in onStart or probably onResume.
-        googleApiClient = googleFitBuild(this, this, this);
-        googleFitConnect(this, googleApiClient);
+        //googleApiClient = googleFitBuild(this, this, this);
+        //googleFitConnect(this, googleApiClient);
     }
 
+    /*
     public static GoogleApiClient googleFitBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener){
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -124,8 +209,8 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
                 .addApi(Fitness.RECORDING_API)
                 .addApi(Fitness.SENSORS_API)
                 .build();
-    }
-
+    }*/
+/*
     //runs an automated Google Fit connect sequence
     public static void googleFitConnect(final Activity activity, final GoogleApiClient mGoogleApiClient){
         Log.d(TAG, "google fit connect called");
@@ -144,11 +229,11 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
             });
             mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
         }
-    }
+    }*/
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "onConnected called");
+      /*  Log.d(TAG, "onConnected called");
 
         //WEARABLE
         String WEARABLE_DATA_PATH = "/wearable_data";
@@ -206,17 +291,17 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
                 Log.d(TAG, "ASD");
                 printData(dataReadResult);
             }
-        });
+        });*/
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d(TAG, "Connection suspended i= " + i);
+        /*Log.d(TAG, "Connection suspended i= " + i);*/
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if( !authInProgress ) {
+      /*  if( !authInProgress ) {
             Log.d(TAG, "!AUTHINPROG" +connectionResult.getErrorCode());
             try {
                 authInProgress = true;
@@ -226,11 +311,11 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
             }
         } else {
             Log.d(TAG, "authInProgress" );
-        }
+        }*/
     }
 
     private void registerStepsDataListener(DataSource dataSource, DataType dataType) {
-
+/*
         SensorRequest request = new SensorRequest.Builder()
                 .setDataSource(dataSource)
                 .setDataType(dataType)
@@ -246,13 +331,13 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
 
                         }
                     }
-                });
+                });*/
 
     }
 
     @Override
     public void onDataPoint(DataPoint dataPoint) {
-        for( final Field field : dataPoint.getDataType().getFields() ) {
+       /* for( final Field field : dataPoint.getDataType().getFields() ) {
             final Value value = dataPoint.getValue( field );
             Log.d(TAG, "Field Name: " + field.getName() + " Value: " + value.toString());
             runOnUiThread(new Runnable() {
@@ -261,12 +346,12 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
                     Toast.makeText(MainActivity.this, "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                 }
             });
-        }
+        }*/
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "OnActivityResult called");
+      /*  Log.d(TAG, "OnActivityResult called");
         if( requestCode == 1) {
             authInProgress = false;
             if( resultCode == RESULT_OK ) {
@@ -282,13 +367,13 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
             }
         } else {
             Log.d(TAG, "requestCode NOT request_oauth");
-        }
+        }*/
     }
 
     // Disconnect from the data layer when the Activity stops
     @Override
     protected void onStop() {
-        Log.d(TAG, "onStop called");
+      /*  Log.d(TAG, "onStop called");
 /*
         if (null != googleApiClient && googleApiClient.isConnected()) {
             googleApiClient.disconnect();
@@ -296,7 +381,7 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
         super.onStop();
     }
 
-
+/*
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy called");
@@ -312,13 +397,13 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
                     }
                 });
     }
-
+*//*
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(TAG, "Onsaveinstance called");
         outState.putBoolean(AUTH_PENDING, authInProgress);
-    }
+    }*/
 
     /**
      * Logs a record of the query result. It's possible to get more constrained data sets by
@@ -327,7 +412,7 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
      * query returns, but your app should not log fitness information as a privacy consideration. A
      * better option would be to dump the data you receive to a local data directory to avoid exposing
      * it to other applications.
-     */
+     *//*
     public static void printData(DataReadResult dataReadResult) {
         // [START parse_read_data_result]
         // If the DataReadRequest object specified aggregated data, dataReadResult will be returned
@@ -348,8 +433,8 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
             }
         }
         // [END parse_read_data_result]
-    }
-
+    }*/
+/*
     // [START parse_dataset]
     private static void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
@@ -364,7 +449,7 @@ public class MainActivity extends WearableActivity   implements OnDataPointListe
                 Log.i(TAG, "\tField: " + field.getName() + " Value: " + dp.getValue(field));
             }
         }
-    }
+    }*/
 
     @Override
     public AmbientModeSupport.AmbientCallback getAmbientCallback() {
