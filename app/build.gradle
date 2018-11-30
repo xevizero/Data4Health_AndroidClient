@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "frassonlancellottilodi.data4health"
         minSdkVersion 21
@@ -43,6 +44,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
 
     implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.google.android.gms:play-services-plus:8.4.0'
 
     wearApp project(':data4health_wearosclient')
 }
