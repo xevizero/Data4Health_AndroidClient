@@ -38,14 +38,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import frassonlancellottilodi.data4health.utils.DataPart;
+import frassonlancellottilodi.data4health.utils.Endpoints;
 import frassonlancellottilodi.data4health.utils.ImageUtils;
-import frassonlancellottilodi.data4health.utils.TextUtils;
 import frassonlancellottilodi.data4health.utils.VolleyMultipartRequest;
+
+import static frassonlancellottilodi.data4health.utils.TextUtils.isEmailValid;
 
 public class RegisterActivity extends AppCompatActivity{
 
-    private String TAG = "RegisterActivity";
-    private final String WEBSERVICEURL = "http://192.168.1.129:5000/android/register";
+    private final String TAG = "RegisterActivity";
     private String selectedSex;
     //--host=192.168.43.60
 
@@ -162,7 +163,6 @@ public class RegisterActivity extends AppCompatActivity{
             final String password = String.valueOf(passwordEditText.getText());
             final String passwordRepeat = String.valueOf(passwordConfirmEditText.getText());
             Boolean stop = false;
-            Boolean check = false;
 
             if (!stop && name.length() == 0){
                 displayErrorAlert("Fulfill al fields!", "Insert your name.");
@@ -176,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity{
                 displayErrorAlert("Fulfill al fields!", "Insert your email.");
                 stop = true;
             }
-            if (!stop && !TextUtils.isEmailValid(email)){
+            if (!stop && !isEmailValid(email)){
                 displayErrorAlert("Email not valid!", "Insert a valid email.");
                 stop = true;
             }
@@ -293,14 +293,14 @@ public class RegisterActivity extends AppCompatActivity{
         final String anonymousDataSharingON = String.valueOf(datasharingCheckBox.isChecked());
 
         //our custom volley request
-        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, WEBSERVICEURL,
+        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, Endpoints.WEBSERVICE_URL_REGISTER,
                 response -> {
                     try {
                         JSONObject obj = new JSONObject(new String(response.data));
                         Log.d(TAG, obj.getString("Response") + " - " + obj.getString("Message"));
                         if("Success".equals(obj.getString("Response"))){
                             Toast.makeText(getApplicationContext(), "You have successfully been registered to Data4Health!", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(this, LoginActivity.class);// New activity
+                            Intent intent = new Intent(this, LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
                             finish();
