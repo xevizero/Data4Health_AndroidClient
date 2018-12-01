@@ -128,7 +128,7 @@
                 android:inputType="phone"
                 android:textColorHint="@color/grey"
                 android:id="@+id/phoneRegisterEditText"
-                android:hint="Phone number"/>
+                android:hint="Phone number (optional)"/>
 
             <TextView
                 android:layout_width="wrap_content"
