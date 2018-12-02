@@ -13,7 +13,9 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -39,6 +41,7 @@ import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.android.gms.plus.Plus;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Asset;
@@ -57,6 +60,8 @@ import java.util.concurrent.TimeUnit;
 
 import frassonlancellottilodi.data4health.viewModel.homePageVM;
 
+import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
+import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -67,7 +72,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-
+    private LinearLayout profileButton;
     ViewModel viewModel;
     Button titleView;
 
@@ -81,6 +86,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkLogin(getApplicationContext(), this, false);
         setContentView(R.layout.activity_home);
         viewModel = ViewModelProviders.of(this).get(homePageVM.class);
         titleView = findViewById(R.id.titlehome);
@@ -93,6 +99,12 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         Sensor  mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == null));
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)));
+        profileButton = findViewById(R.id.homepageProfileButton);
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.setAction(getLoggedUserEmail(getApplicationContext()));
+            startActivity(intent);
+        });
     }
 
     @Override
@@ -305,15 +317,19 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         Log.d(TAG, "OnDestroy called");
         super.onDestroy();
 
-        Fitness.SensorsApi.remove( googleApiClient, this )
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            googleApiClient.disconnect();
+        try {
+            Fitness.SensorsApi.remove(googleApiClient, this)
+                    .setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            if (status.isSuccess()) {
+                                googleApiClient.disconnect();
+                            }
                         }
-                    }
-                });
+                    });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override

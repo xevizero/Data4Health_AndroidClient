@@ -33,6 +33,7 @@ public class SessionUtils {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.remove("authToken");
+        editor.remove("userEmail");
         editor.putString("LoggedIn", encryption.encryptOrNull("false"));
         editor.apply();
 
@@ -41,5 +42,17 @@ public class SessionUtils {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         packageContext.startActivity(intent);
         packageContext.finish();
+    }
+
+    public static String getLoggedUserEmail(Context applicationContext){
+        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        return encryption.decryptOrNull(preferences.getString("userEmail",""));
+    }
+
+    public static String getAuthToken(Context applicationContext){
+        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        return encryption.decryptOrNull(preferences.getString("authToken",""));
     }
 }

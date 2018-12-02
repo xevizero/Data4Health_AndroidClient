@@ -38,11 +38,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import frassonlancellottilodi.data4health.utils.DataPart;
-import frassonlancellottilodi.data4health.utils.Endpoints;
 import frassonlancellottilodi.data4health.utils.ImageUtils;
 import frassonlancellottilodi.data4health.utils.VolleyMultipartRequest;
 
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_REGISTER;
 import static frassonlancellottilodi.data4health.utils.TextUtils.isEmailValid;
+import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
+
 
 public class RegisterActivity extends AppCompatActivity{
 
@@ -165,19 +167,19 @@ public class RegisterActivity extends AppCompatActivity{
             Boolean stop = false;
 
             if (!stop && name.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your name.");
+                displayErrorAlert("Fulfill al fields!", "Insert your name.", this);
                 stop = true;
             }
             if (!stop && surname.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your surname.");
+                displayErrorAlert("Fulfill al fields!", "Insert your surname.", this);
                 stop = true;
             }
             if (!stop && email.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your email.");
+                displayErrorAlert("Fulfill al fields!", "Insert your email.", this);
                 stop = true;
             }
             if (!stop && !isEmailValid(email)){
-                displayErrorAlert("Email not valid!", "Insert a valid email.");
+                displayErrorAlert("Email not valid!", "Insert a valid email.", this);
                 stop = true;
             }
             if (!stop && !isStoragePermissionGranted()){
@@ -185,19 +187,19 @@ public class RegisterActivity extends AppCompatActivity{
                 stop = true;
             }
             if (!stop && profileImage == null){
-                displayErrorAlert("Please, add a photo", "You have to add a profile photo to sign up to Data4Health.");
+                displayErrorAlert("Please, add a photo", "You have to add a profile photo to sign up to Data4Health.", this);
                 stop = true;
             }
             if (!stop && (password.length() == 0 || passwordRepeat.length() == 0)){
-                displayErrorAlert("Fulfill al fields!", "Insert your password.");
+                displayErrorAlert("Fulfill al fields!", "Insert your password.", this);
                 stop = true;
             }
             if (!stop && !password.equals(passwordRepeat)){
-                displayErrorAlert("Repeat your password!", "You have to confirm your password.");
+                displayErrorAlert("Repeat your password!", "You have to confirm your password.", this);
                 stop = true;
             }
             if (!stop && !termsCheckBox.isChecked()){
-                displayErrorAlert("Please, accept Terms and Conditions", "Accept Terms and Conditions to sign up to Data4Health.");
+                displayErrorAlert("Please, accept Terms and Conditions", "Accept Terms and Conditions to sign up to Data4Health.", this);
                 stop = true;
             }
             if(!stop)
@@ -205,14 +207,6 @@ public class RegisterActivity extends AppCompatActivity{
         };
     }
 
-    private void displayErrorAlert(String title, String message){
-        AlertDialog alertDialog = new AlertDialog.Builder(RegisterActivity.this).create();
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(message);
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                (dialog, which) -> dialog.dismiss());
-        alertDialog.show();
-    }
 
     private void displayImageChoiceDialog(){
         AlertDialog alertDialog = new AlertDialog.Builder(RegisterActivity.this).create();
@@ -293,7 +287,7 @@ public class RegisterActivity extends AppCompatActivity{
         final String anonymousDataSharingON = String.valueOf(datasharingCheckBox.isChecked());
 
         //our custom volley request
-        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, Endpoints.WEBSERVICE_URL_REGISTER,
+        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, WEBSERVICE_URL_REGISTER,
                 response -> {
                     try {
                         JSONObject obj = new JSONObject(new String(response.data));
@@ -305,7 +299,7 @@ public class RegisterActivity extends AppCompatActivity{
                             startActivity(intent);
                             finish();
                         }else if("Error".equals(obj.getString("Response"))){
-                            displayErrorAlert("There was a problem with your request!", obj.getString("Message"));
+                            displayErrorAlert("There was a problem with your request!", obj.getString("Message"), this);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
