@@ -1,12 +1,18 @@
 package frassonlancellottilodi.data4health;
 
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -14,7 +20,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
@@ -29,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     private final String TAG = "ProfileActivity";
     private Button title;
     private Boolean personalProfile;
+    private ImageView profilePicture;
     private String userEmail;
     private TextView text1, text2, nameText, stepsText, heartrateText;
 
@@ -52,6 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
         text2 = findViewById(R.id.profilePageProfileText2);
         stepsText = findViewById(R.id.profilePageStepsSubText);
         heartrateText = findViewById(R.id.profilePageHeartbeatSubText);
+        profilePicture = findViewById(R.id.profilePageProfilePicture);
 
         title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
@@ -61,6 +72,8 @@ public class ProfileActivity extends AppCompatActivity {
         text1.setText(sex + ", " + age);
         stepsText.setText(steps);
         heartrateText.setText(heartrate);
+
+        downloadProfilePicture();
     }
 
     private void downloadProfileData(){
@@ -99,6 +112,22 @@ public class ProfileActivity extends AppCompatActivity {
                         error ->
                                 displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
         Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void downloadProfilePicture(){
+
+        String requestURL = WEBSERVICE_URL_IMAGES + "?Token=" + getAuthToken(ProfileActivity.this) + "&Filename=" + getLoggedUserEmail(ProfileActivity.this) + ".png";
+        ImageRequest imageRequest = new ImageRequest(requestURL,
+                response -> {
+                    profilePicture.setImageBitmap(response);
+                }, 100, 100, ImageView.ScaleType.CENTER_CROP,null, error -> {
+
+        });
+
+
+        Volley.newRequestQueue(this).add(imageRequest);
+
+
     }
 
     private String getAge(String birthday){

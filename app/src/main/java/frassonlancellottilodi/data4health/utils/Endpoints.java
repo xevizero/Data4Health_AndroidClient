@@ -13,4 +13,5 @@ public class Endpoints {
     public static final String WEBSERVICE_URL_LOGIN = WEBSERVICE_URL + "login";
     public static final String WEBSERVICE_URL_PROFILE = WEBSERVICE_URL + "profile";
     public static final String WEBSERVICE_URL_NOTIFICATIONS = WEBSERVICE_URL + "notifications";
+    public static final String WEBSERVICE_URL_IMAGES = WEBSERVICE_URL + "uploads";
 }
