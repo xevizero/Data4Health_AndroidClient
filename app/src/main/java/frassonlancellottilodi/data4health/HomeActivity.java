@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -62,6 +64,7 @@ import frassonlancellottilodi.data4health.viewModel.homePageVM;
 
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
+import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -73,6 +76,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         GoogleApiClient.OnConnectionFailedListener {
 
     private LinearLayout profileButton;
+    private ImageView notificationsButton;
     ViewModel viewModel;
     Button titleView;
 
@@ -90,6 +94,10 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         setContentView(R.layout.activity_home);
         viewModel = ViewModelProviders.of(this).get(homePageVM.class);
         titleView = findViewById(R.id.titlehome);
+
+
+        titleView.setTypeface(getTitleFont(this));
+
         //authInProgress code is useful because the onStop may be called while authentication is not complete.
         //In such case this tells it to complete it
         if (savedInstanceState != null) {
@@ -102,6 +110,13 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         profileButton = findViewById(R.id.homepageProfileButton);
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
+            intent.setAction(getLoggedUserEmail(getApplicationContext()));
+            startActivity(intent);
+        });
+
+        notificationsButton = findViewById(R.id.homepageNotificationsButton);
+        notificationsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotificationsActivity.class);
             intent.setAction(getLoggedUserEmail(getApplicationContext()));
             startActivity(intent);
         });

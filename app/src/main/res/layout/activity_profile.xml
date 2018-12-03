@@ -189,7 +189,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
-                        android:text="Average Heartbeat\n(12hours)"/>
+                        android:text="Average Heartbeat\n(Today)"/>
                     <TextView
                         android:id="@+id/profilePageHeartbeatSubText"
                         android:layout_width="match_parent"

@@ -21,6 +21,7 @@ import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.revokeAuthToken;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
+import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 
 
 public class ProfileActivity extends AppCompatActivity {
@@ -52,6 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
         stepsText = findViewById(R.id.profilePageStepsSubText);
         heartrateText = findViewById(R.id.profilePageHeartbeatSubText);
 
+        title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
         text2.setVisibility((personalProfile)?View.GONE:View.VISIBLE);
         nameText.setText(name + " " + surname);
@@ -61,14 +63,11 @@ public class ProfileActivity extends AppCompatActivity {
         heartrateText.setText(heartrate);
     }
 
-//name surname birthday
-
     private void downloadProfileData(){
 
         JSONObject POSTParams = new JSONObject();
         try {
             POSTParams.put("Token", getAuthToken(getApplicationContext()));
-            Log.d(TAG, getAuthToken(getApplicationContext()));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -84,7 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     final String sex = responseData.getString("Sex");
                                     final String birthday = responseData.getString("Birthday");
                                     final String steps = responseData.getString("Steps");
-                                    final String heartrate = responseData.getString("Steps");
+                                    final String heartrate = responseData.getString("Heartbeat");
                                     initializeUI(name, surname, sex, birthday, steps, heartrate);
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));

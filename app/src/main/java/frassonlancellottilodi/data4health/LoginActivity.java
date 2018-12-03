@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -23,6 +24,7 @@ import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSITE_URL;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.TextUtils.isEmailValid;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
+import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -30,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button registerButton, websiteButton, loginButton;
     private EditText emailEditText, passwordEditText;
+    private TextView titleLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         websiteButton = findViewById(R.id.loginWebsiteLinkButton);
         emailEditText = findViewById(R.id.emailLoginEditText);
         passwordEditText = findViewById(R.id.passwordLoginEditText);
+        titleLogin = findViewById(R.id.titleLogin);
 
 
         registerButton.setOnClickListener(v -> {
@@ -57,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(browserIntent);
         });
         loginButton.setOnClickListener(validateLoginRequest());
+        titleLogin.setTypeface(getTitleFont(this));
 
     }
 

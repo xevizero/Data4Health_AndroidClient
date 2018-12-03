@@ -26,6 +26,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -45,6 +46,8 @@ import frassonlancellottilodi.data4health.utils.VolleyMultipartRequest;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_REGISTER;
 import static frassonlancellottilodi.data4health.utils.TextUtils.isEmailValid;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
+import static frassonlancellottilodi.data4health.utils.UIUtils.getMainTitleFont;
+import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 
 
 public class RegisterActivity extends AppCompatActivity{
@@ -60,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity{
     private CustomDatePicker birthdayDatePicker;
     private CheckBox automatedSOSCheckBox, developerCheckBox, datasharingCheckBox, termsCheckBox;
     private Spinner sexSpinner;
+    private TextView titleRegister;
     static final int REQUEST_IMAGE_CAPTURE = 1, REQUEST_IMAGE_SELECTION = 2, REQUEST_STORAGE_PERMISSION = 3;
 
 
@@ -89,9 +93,12 @@ public class RegisterActivity extends AppCompatActivity{
         datasharingCheckBox = findViewById(R.id.registerCheckDataSharing);
         termsCheckBox = findViewById(R.id.registerCheckTerms);
         sexSpinner = findViewById(R.id.spinnersexregister);
+        titleRegister = findViewById(R.id.titleRegister);
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sex_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        titleRegister.setTypeface(getMainTitleFont(this));
 
 
 
