@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import frassonlancellottilodi.data4health.utils.CustomDatePicker;
 import frassonlancellottilodi.data4health.utils.DataPart;
 import frassonlancellottilodi.data4health.utils.ImageUtils;
 import frassonlancellottilodi.data4health.utils.VolleyMultipartRequest;
@@ -56,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity{
     private ImageView cameraButton;
     private Bitmap profileImage;
     private EditText nameEditText, surnameEditText, emailEditText, phoneEditText, passwordEditText, passwordConfirmEditText;
-    private DatePicker birthdayDatePicker;
+    private CustomDatePicker birthdayDatePicker;
     private CheckBox automatedSOSCheckBox, developerCheckBox, datasharingCheckBox, termsCheckBox;
     private Spinner sexSpinner;
     static final int REQUEST_IMAGE_CAPTURE = 1, REQUEST_IMAGE_SELECTION = 2, REQUEST_STORAGE_PERMISSION = 3;

@@ -4,7 +4,7 @@ public class Endpoints {
     //flask run --host=192.168.1.24
 
 
-    public static final String WEBSERVICE_IP = "http://192.168.1.24";
+    public static final String WEBSERVICE_IP = "http://10.0.2.2";
     public static final String WEBSERVICE_PORT = ":5000";
     public static final String WEBSERVICE_ROUTE = "/android/";
     public static final String WEBSERVICE_URL = WEBSERVICE_IP + WEBSERVICE_PORT + WEBSERVICE_ROUTE;

@@ -137,7 +137,7 @@
                 android:textSize="20dp"
                 android:layout_margin="20dp"
                 android:text="Input your birthday down here:"/>
-            <DatePicker
+            <frassonlancellottilodi.data4health.utils.CustomDatePicker
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:backgroundTint="@color/darkGrey"
