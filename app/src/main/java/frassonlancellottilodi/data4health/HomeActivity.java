@@ -75,7 +75,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private LinearLayout profileButton;
+    private LinearLayout profileButton, data4helpButton;
     private ImageView notificationsButton;
     ViewModel viewModel;
     Button titleView;
@@ -108,11 +108,17 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == null));
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)));
         profileButton = findViewById(R.id.homepageProfileButton);
+        data4helpButton = findViewById(R.id.homepageData4HealthButton);
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.setAction(getLoggedUserEmail(getApplicationContext()));
             startActivity(intent);
         });
+        data4helpButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+        });
+
 
         notificationsButton = findViewById(R.id.homepageNotificationsButton);
         notificationsButton.setOnClickListener(v -> {

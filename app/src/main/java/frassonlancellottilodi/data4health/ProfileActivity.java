@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EXTERNAL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
@@ -55,7 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
         downloadProfileData();
     }
 
-    private void initializeUI(String name, String surname, String sex, String birthday, String steps, String heartrate){
+    private void initializeUI(String name, String surname, String sex, String birthday, String steps, String heartrate, Boolean subscription, int statusCode){
         title = findViewById(R.id.titleprofile);
         nameText  = findViewById(R.id.profilePageProfileName);
         text1 = findViewById(R.id.profilePageProfileText1);
@@ -70,9 +71,23 @@ public class ProfileActivity extends AppCompatActivity {
         nameText.setText(name + " " + surname);
         String age = getAge(birthday);
         text1.setText(sex + ", " + age);
-        stepsText.setText(steps);
-        heartrateText.setText(heartrate);
-
+        if(personalProfile || statusCode == 1){
+            stepsText.setText(steps);
+            heartrateText.setText(heartrate);
+        }
+        if(!personalProfile){
+            switch (statusCode){
+                case 0:
+                    text2.setText("Send request");
+                    break;
+                case 1:
+                    text2.setText((subscription)?"Subscribed":"Not subscribed");
+                    break;
+                case 2:
+                    text2.setText("Request pending");
+                    break;
+            }
+        }
         downloadProfilePicture();
     }
 
@@ -81,11 +96,13 @@ public class ProfileActivity extends AppCompatActivity {
         JSONObject POSTParams = new JSONObject();
         try {
             POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            if (personalProfile)
+                POSTParams.put("Email", userEmail);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (WEBSERVICE_URL_PROFILE, POSTParams,
+                ((personalProfile)?WEBSERVICE_URL_PROFILE:WEBSERVICE_URL_EXTERNAL_PROFILE, POSTParams,
                         response -> {
                             try {
                                 Log.d(TAG, response.toString());
@@ -97,12 +114,20 @@ public class ProfileActivity extends AppCompatActivity {
                                     final String birthday = responseData.getString("Birthday");
                                     final String steps = responseData.getString("Steps");
                                     final String heartrate = responseData.getString("Heartbeat");
-                                    initializeUI(name, surname, sex, birthday, steps, heartrate);
+                                    Boolean subscription = false;
+                                    int statusCode = 0;
+                                    if(!personalProfile) {
+                                        subscription = response.getBoolean("Subscription");
+                                        statusCode = response.getInt("StatusCode");
+                                    }
+                                    initializeUI(name, surname, sex, birthday, steps, heartrate, subscription, statusCode);
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));
                                     switch (errorCode){
                                         case 104:
                                             revokeAuthToken(getApplicationContext(), this);
+                                        case 105:
+                                            displayErrorAlert("Error", "This user does not exist", this);
                                     }
                                 }
                             } catch (JSONException e) {
@@ -118,11 +143,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         String requestURL = WEBSERVICE_URL_IMAGES + "?Token=" + getAuthToken(ProfileActivity.this) + "&Filename=" + getLoggedUserEmail(ProfileActivity.this) + ".png";
         ImageRequest imageRequest = new ImageRequest(requestURL,
-                response -> {
-                    profilePicture.setImageBitmap(response);
-                }, 100, 100, ImageView.ScaleType.CENTER_CROP,null, error -> {
-
-        });
+                response -> profilePicture.setImageBitmap(response), 100, 100, ImageView.ScaleType.CENTER_CROP,null,
+                error -> imageDownloadErrorHandler());
 
 
         Volley.newRequestQueue(this).add(imageRequest);
@@ -149,5 +171,10 @@ public class ProfileActivity extends AppCompatActivity {
         String ageS = ageInt.toString();
 
         return ageS;
+    }
+
+
+    private void imageDownloadErrorHandler(){
+        //Nothing for now
     }
 }

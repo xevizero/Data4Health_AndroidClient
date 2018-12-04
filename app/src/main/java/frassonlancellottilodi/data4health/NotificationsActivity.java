@@ -38,7 +38,7 @@ public class NotificationsActivity extends AppCompatActivity {
         checkLogin(getApplicationContext(), this, false);
         setContentView(R.layout.activity_notifications);
 
-        initializeUI();
+
     }
 
     private void downloadNotifications(){
@@ -57,6 +57,7 @@ public class NotificationsActivity extends AppCompatActivity {
                                 if("Success".equals(response.getString("Response"))){
                                     JSONObject responseData = response.getJSONObject("Data");
 
+                                    initializeUI();
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));
                                     switch (errorCode){
