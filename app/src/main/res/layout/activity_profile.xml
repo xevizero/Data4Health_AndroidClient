@@ -155,7 +155,7 @@
                 android:weightSum="1"
                 android:background="@drawable/ripplewhite"
                 android:clickable="true"
-                android:id="@+id/profilepageData4HealthButton">
+                android:id="@+id/profilepageHeartButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -214,7 +214,8 @@
                 android:layout_marginBottom="20dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:background="@color/lightGrey"/>
+                android:background="@color/lightGrey"
+                android:id="@+id/profilePageSeparator1"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -223,7 +224,7 @@
                 android:weightSum="1"
                 android:background="@drawable/ripplewhite"
                 android:clickable="true"
-                android:id="@+id/profilepageAutomatedSOSButton">
+                android:id="@+id/profilepageStepsButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -285,7 +286,8 @@
                 android:layout_marginBottom="20dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:background="@color/lightGrey"/>
+                android:background="@color/lightGrey"
+                android:id="@+id/profilePageSeparator2"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
@@ -293,7 +295,7 @@
                 android:weightSum="1"
                 android:background="@drawable/ripplewhite"
                 android:clickable="true"
-                android:id="@+id/profilepageTrack4RunButton">
+                android:id="@+id/profilepageSOSButton">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

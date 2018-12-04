@@ -1,17 +1,14 @@
 package frassonlancellottilodi.data4health;
 
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -20,8 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EXTERNAL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
@@ -42,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView profilePicture;
     private String userEmail;
     private TextView text1, text2, nameText, stepsText, heartrateText;
+    private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +60,11 @@ public class ProfileActivity extends AppCompatActivity {
         stepsText = findViewById(R.id.profilePageStepsSubText);
         heartrateText = findViewById(R.id.profilePageHeartbeatSubText);
         profilePicture = findViewById(R.id.profilePageProfilePicture);
+        buttonHeart = findViewById(R.id.profilepageHeartButton);
+        buttonSOS = findViewById(R.id.profilepageSOSButton);
+        buttonSteps = findViewById(R.id.profilepageStepsButton);
+        separator1 = findViewById(R.id.profilePageSeparator1);
+        separator2 = findViewById(R.id.profilePageSeparator2);
 
         title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
@@ -74,6 +75,12 @@ public class ProfileActivity extends AppCompatActivity {
         if(personalProfile || statusCode == 1){
             stepsText.setText(steps);
             heartrateText.setText(heartrate);
+        }else{
+            buttonHeart.setVisibility(View.GONE);
+            buttonSOS.setVisibility(View.GONE);
+            buttonSteps.setVisibility(View.GONE);
+            separator1.setVisibility(View.GONE);
+            separator2.setVisibility(View.GONE);
         }
         if(!personalProfile){
             switch (statusCode){
@@ -96,7 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
         JSONObject POSTParams = new JSONObject();
         try {
             POSTParams.put("Token", getAuthToken(getApplicationContext()));
-            if (personalProfile)
+            if (!personalProfile)
                 POSTParams.put("Email", userEmail);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -117,8 +124,8 @@ public class ProfileActivity extends AppCompatActivity {
                                     Boolean subscription = false;
                                     int statusCode = 0;
                                     if(!personalProfile) {
-                                        subscription = response.getBoolean("Subscription");
-                                        statusCode = response.getInt("StatusCode");
+                                        subscription = responseData.getBoolean("Subscription");
+                                        statusCode = responseData.getInt("StatusCode");
                                     }
                                     initializeUI(name, surname, sex, birthday, steps, heartrate, subscription, statusCode);
                                 }else if("Error".equals(response.getString("Response"))){
