@@ -2,6 +2,7 @@ package frassonlancellottilodi.data4health;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -44,6 +45,7 @@ public class SearchActivity extends AppCompatActivity {
     private LinearLayout searchScrollViewContainer;
     private EditText searchField;
     private ImageView searchButton;
+    private Boolean drawSeparator = true;
 
 
     @Override
@@ -102,6 +104,8 @@ public class SearchActivity extends AppCompatActivity {
             final String surname = userData.getString("Surname");
             final String email = userData.getString("Email");
             searchScrollViewContainer.addView(generateSearchResult(name + " " + surname, email));
+            if(drawSeparator)
+                searchScrollViewContainer.addView(generateSearchSeparator());
         }
     }
 
@@ -171,6 +175,7 @@ public class SearchActivity extends AppCompatActivity {
         paramsImage.setMargins(30,30,30,30);
         photoImageView.setLayoutParams(paramsImage);
         photoImageView.setImageResource(R.drawable.bgspinner);
+        photoImageView.setTransitionName("ProfilePictureTransitionHomePage");
         downloadProfilePicture(response -> photoImageView.setImageBitmap(response), email);
 
         nameContainer.addView(nameView);
@@ -180,8 +185,11 @@ public class SearchActivity extends AppCompatActivity {
 
         horizontalRow.setOnClickListener(v -> {
             Intent i = new Intent(SearchActivity.this, ProfileActivity.class);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    SearchActivity.this, photoImageView, "ProfilePictureTransitionHomePage");
             i.setAction(email);
-            startActivity(i);
+            startActivity(i, options.toBundle());
+
         });
 
         return horizontalRow;

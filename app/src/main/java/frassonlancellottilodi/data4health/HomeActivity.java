@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -13,13 +14,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -54,17 +63,30 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import frassonlancellottilodi.data4health.utils.APIUtils;
 import frassonlancellottilodi.data4health.viewModel.homePageVM;
 
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EXTERNAL_PROFILE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_HOMEPAGE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
+import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
+import static frassonlancellottilodi.data4health.utils.SessionUtils.revokeAuthToken;
+import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
 import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
+import static frassonlancellottilodi.data4health.utils.UIUtils.pxFromDp;
 import static java.text.DateFormat.getTimeInstance;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -75,10 +97,12 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private LinearLayout profileButton, data4helpButton;
+    private LinearLayout profileButton, data4helpButton, peopleBar, addFriendButtonContainer;
     private ImageView notificationsButton;
-    ViewModel viewModel;
-    Button titleView;
+    private Button titleView;
+    private FloatingActionButton addFriendButton;
+    private TextView profileName;
+    private ImageView profilePicture;
 
     private static final String START_ACTIVITY = "/start_activity";
     private static final String TAG = "CCC";
@@ -92,40 +116,97 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         super.onCreate(savedInstanceState);
         checkLogin(getApplicationContext(), this, false);
         setContentView(R.layout.activity_home);
-        viewModel = ViewModelProviders.of(this).get(homePageVM.class);
-        titleView = findViewById(R.id.titlehome);
-
-
-        titleView.setTypeface(getTitleFont(this));
 
         //authInProgress code is useful because the onStop may be called while authentication is not complete.
         //In such case this tells it to complete it
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
+
+
+        downloadHomeData();
+
+
+    }
+
+    private void sensorTest(){
         SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor  mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == null));
         Log.d(TAG, "ARES" + String.valueOf(mSensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)));
+    }
+
+
+    private void initializeUI(String name, String surname, JSONArray emails) throws JSONException {
+
+        titleView = findViewById(R.id.titlehome);
+        titleView.setTypeface(getTitleFont(this));
         profileButton = findViewById(R.id.homepageProfileButton);
         data4helpButton = findViewById(R.id.homepageData4HealthButton);
+        notificationsButton = findViewById(R.id.homepageNotificationsButton);
+        profileName = findViewById(R.id.homePageProfileName);
+        profilePicture = findViewById(R.id.homepageProfilePicture);
+        peopleBar = findViewById(R.id.homepagePeopleBarContainer);
+        addFriendButtonContainer = findViewById(R.id.homePageAddFriendButtonContainer);
+        addFriendButton = findViewById(R.id.homePageAddFriendButton);
+
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.setAction(getLoggedUserEmail(getApplicationContext()));
-            startActivity(intent);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    HomeActivity.this, profilePicture, "ProfilePictureTransitionHomePage");
+            startActivity(intent, options.toBundle());
         });
         data4helpButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
         });
-
-
-        notificationsButton = findViewById(R.id.homepageNotificationsButton);
         notificationsButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.setAction(getLoggedUserEmail(getApplicationContext()));
             startActivity(intent);
         });
+
+        profileName.setText(name + " " + surname);
+        downloadProfilePicture(response -> profilePicture.setImageBitmap(response), getLoggedUserEmail(this));
+
+        peopleBar.removeView(addFriendButtonContainer);
+        for(int i = 0; i < emails.length(); i++){
+            final String ext_email = emails.getJSONObject(i).getString("Email");
+            peopleBar.addView(generatePersonImageContainer(ext_email));
+        }
+        peopleBar.addView(addFriendButtonContainer);
+        addFriendButton.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private RelativeLayout generatePersonImageContainer(String email){
+        RelativeLayout pictureContainer = new RelativeLayout(this);
+        LinearLayout.LayoutParams paramsPictureContainer = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        paramsPictureContainer.setMargins(0,0,0,0);
+        pictureContainer.setLayoutParams(paramsPictureContainer);
+        pictureContainer.setGravity(Gravity.CENTER_VERTICAL | RelativeLayout.CENTER_HORIZONTAL);
+
+        ImageView photoImageView = new ImageView(this);
+        RelativeLayout.LayoutParams paramsImage = new RelativeLayout.LayoutParams(pxFromDp(this, 80), pxFromDp(this, 80));
+        //paramsImage.setMargins(30,30,30,30);
+        photoImageView.setLayoutParams(paramsImage);
+        photoImageView.setImageResource(R.drawable.bgspinner);
+        photoImageView.setBackgroundResource(R.drawable.ripplecirclewhite);
+        photoImageView.setTransitionName("ProfilePictureTransitionHomePage");
+        downloadProfilePicture(response -> photoImageView.setImageBitmap(response), email);
+        photoImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+            intent.setAction(email);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    HomeActivity.this, photoImageView, "ProfilePictureTransitionHomePage");
+            startActivity(intent, options.toBundle());
+        });
+
+        pictureContainer.addView(photoImageView);
+        return pictureContainer;
     }
 
     @Override
@@ -450,4 +531,60 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
     // [END parse_dataset]
+
+
+
+    //Communication
+
+    private void downloadHomeData(){
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_HOMEPAGE, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+                                    JSONArray emails = response.getJSONArray("Data");
+                                    final String name = response.getString("Name");
+                                    final String surname = response.getString("Surname");
+                                    initializeUI(name, surname, emails);
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+                                        default:
+                                            displayErrorAlert("Error", response.getString("Message"), this);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void downloadProfilePicture(final APIUtils.imageRequestCallback callback, String userEmail){
+
+        String requestURL = WEBSERVICE_URL_IMAGES + "?Token=" + getAuthToken(HomeActivity.this) + "&Filename=" + userEmail + ".png";
+        ImageRequest imageRequest = new ImageRequest(requestURL,
+                response -> callback.onSuccess(response), 100, 100, ImageView.ScaleType.CENTER_CROP,null,
+                error -> imageDownloadErrorHandler());
+
+
+        Volley.newRequestQueue(this).add(imageRequest);
+
+
+    }
+
+    private void imageDownloadErrorHandler(){
+        //Nothing for now
+    }
 }

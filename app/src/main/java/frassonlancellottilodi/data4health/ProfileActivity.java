@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,8 +21,10 @@ import org.json.JSONObject;
 import java.util.Calendar;
 
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EXTERNAL_PROFILE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_FRIEND_REQUEST;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_SUBSCRIPTION_REQUEST;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
@@ -32,12 +36,13 @@ import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 public class ProfileActivity extends AppCompatActivity {
 
     private final String TAG = "ProfileActivity";
-    private Button title;
+    private Button title, sendRequestButton;
     private Boolean personalProfile;
     private ImageView profilePicture;
     private String userEmail;
-    private TextView text1, text2, nameText, stepsText, heartrateText;
-    private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2;
+    private TextView text1, text2, nameText, stepsText, heartrateText, sendRequestText;
+    private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2, requestButtonContainer;
+    private CheckBox subscriptionCheckbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +52,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         userEmail = getIntent().getAction();
         personalProfile = getLoggedUserEmail(getApplicationContext()).equals(userEmail);
-
 
         downloadProfileData();
     }
@@ -65,10 +69,15 @@ public class ProfileActivity extends AppCompatActivity {
         buttonSteps = findViewById(R.id.profilepageStepsButton);
         separator1 = findViewById(R.id.profilePageSeparator1);
         separator2 = findViewById(R.id.profilePageSeparator2);
+        requestButtonContainer = findViewById(R.id.profileSendRequestButtonContainer);
+        sendRequestText = findViewById(R.id.profileSendRequestText);
+        sendRequestButton = findViewById(R.id.profileSendRequestButton);
+        subscriptionCheckbox = findViewById(R.id.profileCheckSubscription);
 
         title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
         text2.setVisibility((personalProfile)?View.GONE:View.VISIBLE);
+        subscriptionCheckbox.setVisibility((personalProfile)?View.GONE:View.VISIBLE);
         nameText.setText(name + " " + surname);
         String age = getAge(birthday);
         text1.setText(sex + ", " + age);
@@ -85,18 +94,106 @@ public class ProfileActivity extends AppCompatActivity {
         if(!personalProfile){
             switch (statusCode){
                 case 0:
-                    text2.setText("Send request");
+                    text2.setText("Not connected");
+                    subscriptionCheckbox.setVisibility(View.GONE);
+                    requestButtonContainer.setVisibility(View.VISIBLE);
+                    sendRequestText.setText("You are not connected to " + name);
+                    sendRequestButton.setOnClickListener(v -> sendFriendRequest());
                     break;
                 case 1:
                     text2.setText((subscription)?"Subscribed":"Not subscribed");
+                    subscriptionCheckbox.setChecked(subscription);
+                    subscriptionCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        sendSubscriptionRequest(isChecked);
+                    });
                     break;
                 case 2:
-                    text2.setText("Request pending");
+                    text2.setText("Not connected");
+                    subscriptionCheckbox.setVisibility(View.GONE);
+                    requestButtonContainer.setVisibility(View.VISIBLE);
+                    sendRequestText.setText("Friend request sent.");
+                    sendRequestButton.setOnClickListener(v -> displayErrorAlert("Request already pending!", "Your friend will no have to manually review the request.", this));
                     break;
             }
         }
-        downloadProfilePicture();
+        downloadProfilePicture(userEmail);
     }
+
+    private void sendSubscriptionRequest(Boolean subRequest){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("Email", userEmail);
+            POSTParams.put("Query", subRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_SUBSCRIPTION_REQUEST, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+                                    Boolean subscriptionResult = response.getBoolean("Data");
+                                    text2.setText((subscriptionResult)?"Subscribed":"Not subscribed");
+                                    subscriptionCheckbox.setChecked(subscriptionResult);
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+                                        default:
+                                            displayErrorAlert("Error", response.getString("Message"), this);
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void sendFriendRequest(){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("Email", userEmail);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_FRIEND_REQUEST, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+                                    sendRequestText.setText("Friend request sent.");
+                                    sendRequestButton.setOnClickListener(v -> displayErrorAlert("Request already pending!", "Your friend will no have to manually review the request.", this));
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+                                        default:
+                                            displayErrorAlert("Error", response.getString("Message"), this);
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+
 
     private void downloadProfileData(){
 
@@ -124,8 +221,8 @@ public class ProfileActivity extends AppCompatActivity {
                                     Boolean subscription = false;
                                     int statusCode = 0;
                                     if(!personalProfile) {
-                                        subscription = responseData.getBoolean("Subscription");
-                                        statusCode = responseData.getInt("StatusCode");
+                                            subscription = responseData.getBoolean("Subscription");
+                                            statusCode = responseData.getInt("StatusCode");
                                     }
                                     initializeUI(name, surname, sex, birthday, steps, heartrate, subscription, statusCode);
                                 }else if("Error".equals(response.getString("Response"))){
@@ -146,9 +243,9 @@ public class ProfileActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
-    private void downloadProfilePicture(){
+    private void downloadProfilePicture(String email){
 
-        String requestURL = WEBSERVICE_URL_IMAGES + "?Token=" + getAuthToken(ProfileActivity.this) + "&Filename=" + getLoggedUserEmail(ProfileActivity.this) + ".png";
+        String requestURL = WEBSERVICE_URL_IMAGES + "?Token=" + getAuthToken(ProfileActivity.this) + "&Filename=" + email + ".png";
         ImageRequest imageRequest = new ImageRequest(requestURL,
                 response -> profilePicture.setImageBitmap(response), 100, 100, ImageView.ScaleType.CENTER_CROP,null,
                 error -> imageDownloadErrorHandler());
