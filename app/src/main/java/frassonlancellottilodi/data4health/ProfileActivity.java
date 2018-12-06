@@ -111,7 +111,7 @@ public class ProfileActivity extends AppCompatActivity {
                     text2.setText("Not connected");
                     subscriptionCheckbox.setVisibility(View.GONE);
                     requestButtonContainer.setVisibility(View.VISIBLE);
-                    sendRequestText.setText("Friend request sent.");
+                    sendRequestText.setText("Friend request pending.");
                     sendRequestButton.setOnClickListener(v -> displayErrorAlert("Request already pending!", "Your friend will no have to manually review the request.", this));
                     break;
             }
@@ -172,7 +172,7 @@ public class ProfileActivity extends AppCompatActivity {
                             try {
                                 Log.d(TAG, response.toString());
                                 if("Success".equals(response.getString("Response"))){
-                                    sendRequestText.setText("Friend request sent.");
+                                    sendRequestText.setText("Friend request pending.");
                                     sendRequestButton.setOnClickListener(v -> displayErrorAlert("Request already pending!", "Your friend will no have to manually review the request.", this));
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));

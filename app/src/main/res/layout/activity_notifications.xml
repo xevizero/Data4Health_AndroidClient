@@ -58,6 +58,7 @@
             android:layout_height="fill_parent"
             android:orientation="vertical">
             <RelativeLayout
+                android:id="@+id/paddingnotificationsscrollview"
                 android:layout_width="fill_parent"
                 android:layout_height="84dp"/>
 
@@ -65,6 +66,7 @@
     </ScrollView>
 
     <Button
+        android:id="@+id/notificationsClearAllButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Clear All"
