@@ -1,5 +1,6 @@
 package frassonlancellottilodi.data4health;
 
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageRequest;
@@ -24,6 +26,7 @@ import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_FRIEND_REQUEST;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_REMOVE_FRIEND_REQUEST;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_SUBSCRIPTION_REQUEST;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
@@ -31,17 +34,19 @@ import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUse
 import static frassonlancellottilodi.data4health.utils.SessionUtils.revokeAuthToken;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
 import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
+import static frassonlancellottilodi.data4health.utils.UIUtils.pxFromDp;
 
 
 public class ProfileActivity extends AppCompatActivity {
 
     private final String TAG = "ProfileActivity";
-    private Button title, sendRequestButton;
+    private Button title, sendRequestButton, deleteFriendButton;
     private Boolean personalProfile;
     private ImageView profilePicture;
     private String userEmail;
     private TextView text1, text2, nameText, stepsText, heartrateText, sendRequestText;
-    private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2, requestButtonContainer;
+    private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2, separator3, requestButtonContainer;
+    private RelativeLayout deleteFriendContainer;
     private CheckBox subscriptionCheckbox;
 
     @Override
@@ -73,6 +78,9 @@ public class ProfileActivity extends AppCompatActivity {
         sendRequestText = findViewById(R.id.profileSendRequestText);
         sendRequestButton = findViewById(R.id.profileSendRequestButton);
         subscriptionCheckbox = findViewById(R.id.profileCheckSubscription);
+        separator3 = findViewById(R.id.profilePageSeparator3);
+        deleteFriendButton = findViewById(R.id.profilepageRemoveFriendButton);
+        deleteFriendContainer = findViewById(R.id.profilepageRemoveFriendButtonContainer);
 
         title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
@@ -95,8 +103,11 @@ public class ProfileActivity extends AppCompatActivity {
             switch (statusCode){
                 case 0:
                     text2.setText("Not connected");
+                    text2.setPadding(0, 0, 0, 0);
                     subscriptionCheckbox.setVisibility(View.GONE);
                     requestButtonContainer.setVisibility(View.VISIBLE);
+                    separator3.setVisibility(View.GONE);
+                    deleteFriendContainer.setVisibility(View.GONE);
                     sendRequestText.setText("You are not connected to " + name);
                     sendRequestButton.setOnClickListener(v -> sendFriendRequest());
                     break;
@@ -106,17 +117,58 @@ public class ProfileActivity extends AppCompatActivity {
                     subscriptionCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                         sendSubscriptionRequest(isChecked);
                     });
+                    deleteFriendButton.setOnClickListener(v -> displayRemoveFriendDialog("Do you want to remove this person from your friends list?"));
                     break;
                 case 2:
                     text2.setText("Not connected");
+                    text2.setPadding(0, 0, 0, 0);
                     subscriptionCheckbox.setVisibility(View.GONE);
                     requestButtonContainer.setVisibility(View.VISIBLE);
                     sendRequestText.setText("Friend request pending.");
-                    sendRequestButton.setOnClickListener(v -> displayErrorAlert("Request already pending!", "Your friend will no have to manually review the request.", this));
+                    sendRequestButton.setText("Cancel friend request");
+                    sendRequestButton.setOnClickListener(v -> displayRemoveFriendDialog("Do you want to cancel your friend request?"));
+                    separator3.setVisibility(View.GONE);
+                    deleteFriendContainer.setVisibility(View.GONE);
                     break;
             }
         }
         downloadProfilePicture(userEmail);
+    }
+
+    private void removeFriendRequest(){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("Email", userEmail);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_REMOVE_FRIEND_REQUEST, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+                                    finish();
+                                    startActivity(getIntent());
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+                                        default:
+                                            displayErrorAlert("Error", response.getString("Message"), this);
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
     private void sendSubscriptionRequest(Boolean subRequest){
@@ -280,5 +332,21 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void imageDownloadErrorHandler(){
         //Nothing for now
+    }
+
+    private void displayRemoveFriendDialog(String message){
+        AlertDialog alertDialog = new AlertDialog.Builder(ProfileActivity.this).create();
+        alertDialog.setTitle("Remove friend");
+        alertDialog.setMessage(message);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Remove",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    removeFriendRequest();
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        alertDialog.show();
     }
 }

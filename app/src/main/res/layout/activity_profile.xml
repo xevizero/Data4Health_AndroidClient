@@ -361,7 +361,32 @@
                     android:layout_weight="0.1"/>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:background="@color/lightGrey"
+                android:id="@+id/profilePageSeparator3"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:id="@+id/profilepageRemoveFriendButtonContainer">
 
+                <Button
+                    android:id="@+id/profilepageRemoveFriendButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remove friend"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:textColor="@color/white"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginBottom="30dp"/>
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
