@@ -6,16 +6,19 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -74,6 +77,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import frassonlancellottilodi.data4health.utils.APIUtils;
+import frassonlancellottilodi.data4health.utils.Encryption;
 import frassonlancellottilodi.data4health.viewModel.homePageVM;
 
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EXTERNAL_PROFILE;
@@ -82,6 +86,7 @@ import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
+import static frassonlancellottilodi.data4health.utils.SessionUtils.getAutomatedSOSStatus;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.revokeAuthToken;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
@@ -97,12 +102,12 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private LinearLayout profileButton, data4helpButton, peopleBar, addFriendButtonContainer;
+    private LinearLayout profileButton, data4helpButton, peopleBar, addFriendButtonContainer, automatedSOSButton;
     private ImageView notificationsButton;
     private Button titleView;
     private FloatingActionButton addFriendButton;
     private TextView profileName;
-    private ImageView profilePicture;
+    private ImageView profilePicture, automatedSOSIcon;
 
     private static final String START_ACTIVITY = "/start_activity";
     private static final String TAG = "CCC";
@@ -149,6 +154,8 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         peopleBar = findViewById(R.id.homepagePeopleBarContainer);
         addFriendButtonContainer = findViewById(R.id.homePageAddFriendButtonContainer);
         addFriendButton = findViewById(R.id.homePageAddFriendButton);
+        automatedSOSButton = findViewById(R.id.homepageAutomatedSOSButton);
+        automatedSOSIcon = findViewById(R.id.homepageAutomatedSOSIcon);
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -180,6 +187,9 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
             Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
             startActivity(intent);
         });
+        automatedSOSButton.setOnClickListener(v -> displayActivateAutomatedSOSDialog());
+        automatedSOSIcon.setImageResource((getAutomatedSOSStatus(this) != null && getAutomatedSOSStatus(this).equals("true"))?R.drawable.medic2:R.drawable.medic2_grey);
+
     }
 
     private RelativeLayout generatePersonImageContainer(String email){
@@ -586,5 +596,38 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
 
     private void imageDownloadErrorHandler(){
         //Nothing for now
+    }
+
+    private void manageAutomatedSOS(Boolean setting){
+        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("AutomatedSOSOn", encryption.encryptOrNull(((setting)?"true":"false")));
+        editor.apply();
+
+        automatedSOSIcon.setImageResource((setting)?R.drawable.medic2:R.drawable.medic2_grey);
+    }
+
+    private void displayActivateAutomatedSOSDialog(){
+        Boolean automatedSOSStatus = false;
+        if(!(getAutomatedSOSStatus(this) == null || getAutomatedSOSStatus(this).equals("false"))){
+            automatedSOSStatus = true;
+        }
+
+        AlertDialog alertDialog = new AlertDialog.Builder(HomeActivity.this).create();
+        alertDialog.setTitle("AutomatedSOS is " + ((automatedSOSStatus)?"ON":"OFF"));
+        alertDialog.setMessage("Do you want to " + ((automatedSOSStatus)?"deactivate":"activate") + " AutomatedSOS?");
+        Boolean finalAutomatedSOSStatus = automatedSOSStatus;
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    manageAutomatedSOS(!finalAutomatedSOSStatus);
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        alertDialog.show();
     }
 }

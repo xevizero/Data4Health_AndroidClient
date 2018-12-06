@@ -55,4 +55,10 @@ public class SessionUtils {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
         return encryption.decryptOrNull(preferences.getString("authToken",""));
     }
+
+    public static String getAutomatedSOSStatus(Context applicationContext){
+        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        return encryption.decryptOrNull(preferences.getString("AutomatedSOSOn","false"));
+    }
 }
