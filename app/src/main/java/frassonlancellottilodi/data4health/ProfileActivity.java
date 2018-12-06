@@ -131,6 +131,9 @@ public class ProfileActivity extends AppCompatActivity {
                     deleteFriendContainer.setVisibility(View.GONE);
                     break;
             }
+        }else{
+            separator3.setVisibility(View.GONE);
+            deleteFriendContainer.setVisibility(View.GONE);
         }
         downloadProfilePicture(userEmail);
     }
