@@ -1,25 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_grey"
+    android:background="@color/black"
     android:padding="@dimen/box_inset_layout_padding"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
 
-    <FrameLayout
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/iconHome"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/data4health_nobackground"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"/>
+    </RelativeLayout>
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/inner_frame_layout_padding"
-        app:boxedEdges="all">
+        android:weightSum="1"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:weightSum="1"
+            android:orientation="horizontal">
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:gravity="bottom">
+                <ImageView
+                    android:id="@+id/imageSteps"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/steps"
+                    android:layout_centerHorizontal="true"/>
+                <TextView
+                    android:id="@+id/textSteps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="40dp"
+                    android:layout_below="@+id/imageSteps"
+                    android:layout_centerHorizontal="true"
+                    android:textAlignment="center"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:gravity="bottom">
+                <ImageView
+                    android:id="@+id/imageHeart"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/heart_pink"
+                    android:layout_centerHorizontal="true"/>
+                <TextView
+                    android:id="@+id/textHeart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="40dp"
+                    android:layout_below="@+id/imageHeart"
+                    android:layout_centerHorizontal="true"
+                    android:textAlignment="center"/>
+            </RelativeLayout>
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.4"
+            android:gravity="top">
+            <TextView
+                android:id="@+id/textAutomatedSOS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hello_world" />
-
-    </FrameLayout>
 </android.support.wear.widget.BoxInsetLayout>

@@ -1,9 +1,9 @@
 package frassonlancellottilodi.data4health.utils;
 
 public class Endpoints {
-    //flask run --host=192.168.1.24
 
-
+    //public static final String WEBSERVICE_IP = "http://xevizero.pythonanywhere.com";
+    //public static final String WEBSERVICE_PORT ="";
     public static final String WEBSERVICE_IP = "http://10.0.2.2";
     public static final String WEBSERVICE_PORT =":5000";
     public static final String WEBSERVICE_ROUTE = "/android/";
