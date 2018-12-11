@@ -19,7 +19,7 @@ public class ListenerService extends WearableListenerService{
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        Log.d("data", "onMessageReceived: " + messageEvent);
+        Log.d("ListenerService", "onMessageReceived: " + messageEvent);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ListenerService extends WearableListenerService{
                 String path = event.getDataItem().getUri().getPath();
                 if (path.equals(WEARABLE_DATA_PATH)) {}
                 dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
-                Log.v("myTag", "DataMap received on watch: " + dataMap);
+                Log.v("ListenerService", "DataMap received on watch: " + dataMap);
             }
         }
     }

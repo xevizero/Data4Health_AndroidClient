@@ -226,7 +226,7 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
                 String path = event.getDataItem().getUri().getPath();
                 if (path.equals(WEARABLE_DATA_PATH)) {}
                 dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
-                Log.v("myTag", "DataMap received on watch: " + dataMap);
+                Log.v("MainActivity", "DataMap received on watch: " + dataMap);
             }
         }
     }
