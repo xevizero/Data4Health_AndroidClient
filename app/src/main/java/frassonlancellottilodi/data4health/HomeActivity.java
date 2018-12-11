@@ -1,21 +1,17 @@
 package frassonlancellottilodi.data4health;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,9 +27,17 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -47,8 +51,15 @@ import java.util.Date;
 import frassonlancellottilodi.data4health.utils.APIUtils;
 import frassonlancellottilodi.data4health.utils.Encryption;
 
+import static frassonlancellottilodi.data4health.utils.Constants.PHONE_DATA_PATH;
+import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_CURRENT_STEPS;
+import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_SYNC_DATA_FROM_WATCH;
+import static frassonlancellottilodi.data4health.utils.Constants.RESPONSE_CURRENT_STEPS;
+import static frassonlancellottilodi.data4health.utils.Constants.WEARABLE_DATA_PATH;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_HOMEPAGE;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_SYNC_HEALTH_DATA;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAutomatedSOSStatus;
@@ -61,8 +72,11 @@ import static frassonlancellottilodi.data4health.utils.UIUtils.pxFromDp;
 
 //adb -d forward tcp:5601 tcp:5601
 
-public class HomeActivity extends android.support.v4.app.FragmentActivity  implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class HomeActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        CapabilityClient.OnCapabilityChangedListener,
+        DataClient.OnDataChangedListener,
+        MessageClient.OnMessageReceivedListener{
 
     private LinearLayout profileButton, data4helpButton, peopleBar, addFriendButtonContainer, automatedSOSButton;
     private ImageView notificationsButton;
@@ -87,29 +101,9 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
-        requestBackgroundServiceAuthorization();
 
         downloadHomeData();
     }
-
-    private void requestBackgroundServiceAuthorization(){
-        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        Intent intent=new Intent();
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
-                intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-            }
-            else {
-                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
-            }
-        }
-    }
-
-
-
 
     private void initializeUI(String name, String surname, JSONArray emails) throws JSONException {
 
@@ -211,6 +205,10 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         }
     }
 
+    private void wear_sendCurrentStepsCount(){
+
+    }
+
     // Disconnect from the data layer when the Activity stops
     @Override
     protected void onStop() {
@@ -224,22 +222,6 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "onConnected called");
-
-        //WEARABLE
-        String WEARABLE_DATA_PATH = "/wearable_data";
-        DataMap dataMap = new DataMap();
-        dataMap.putLong("time", new Date().getTime());
-        dataMap.putString("hole", "1");
-        dataMap.putString("front", "250");
-        dataMap.putString("middle", "260");
-        dataMap.putString("back", "270");
-        Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            dataMap.putString("AGGIUNTA", "QUI");
-            new SendToDataLayerThread(WEARABLE_DATA_PATH, dataMap).start();
-
-        },5000);
-        new SendToDataLayerThread(WEARABLE_DATA_PATH, dataMap).start();
     }
 
     @Override
@@ -296,7 +278,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
         outState.putBoolean(AUTH_PENDING, authInProgress);
     }
 
-    class SendToDataLayerThread extends Thread {
+    private class SendToDataLayerThread extends Thread {
         String path;
         DataMap dataMap;
 
@@ -336,6 +318,69 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
     }
 
 
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+        Log.d("data", "changedactivity");
+
+        DataMap dataMap;
+        for (DataEvent event : dataEventBuffer) {
+            Log.d("data", "received");
+
+            // Check the data type
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // Check the data path
+                String path = event.getDataItem().getUri().getPath();
+                if (path.equals(PHONE_DATA_PATH)) {
+                    dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
+                    Log.v("HomeActivity", "DataMap received on phone: " + dataMap);
+                    handleWearDataMap(dataMap);
+                }
+            }
+        }
+    }
+
+    private void handleWearDataMap(DataMap dataMap){
+        String requestName = dataMap.getString("request");
+        if (requestName.equals(REQUEST_CURRENT_STEPS)){
+            downloadStepData();
+        }
+        if (requestName.equals(REQUEST_SYNC_DATA_FROM_WATCH)){
+            Log.d("DATA UPDATE", ""+dataMap);
+            final String heartrate = dataMap.getString("heartrate");
+            final String steps = dataMap.getString("steps");
+            sendHealthData(heartrate, steps);
+        }
+    }
+
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
+        Log.d(TAG, "onMessageReceived: " + messageEvent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Wearable.getDataClient(this).addListener(this);
+        Wearable.getMessageClient(this).addListener(this);
+        Wearable.getCapabilityClient(this)
+                .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Wearable.getDataClient(this).removeListener(this);
+        Wearable.getMessageClient(this).removeListener(this);
+        Wearable.getCapabilityClient(this).removeListener(this);
+    }
+
+
+    @Override
+    public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
+
+    }
+
     //Communication
 
     private void downloadHomeData(){
@@ -362,6 +407,79 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
                                             revokeAuthToken(getApplicationContext(), this);
                                         default:
                                             displayErrorAlert("Error", response.getString("Message"), this);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void downloadStepData(){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_PROFILE, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+                                    JSONObject responseData = response.getJSONObject("Data");
+                                    final String steps = responseData.getString("Steps");
+                                    DataMap dataMap = new DataMap();
+                                    dataMap.putLong("time", new Date().getTime());
+                                    dataMap.putString("request", RESPONSE_CURRENT_STEPS);
+                                    dataMap.putString("steps", steps);
+                                    new SendToDataLayerThread(WEARABLE_DATA_PATH, dataMap).start();
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+                                        case 105:
+                                            displayErrorAlert("Error", "This user does not exist", this);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void sendHealthData(String heartrate, String steps){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("Steps", steps);
+            POSTParams.put("Heartrate", heartrate);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_SYNC_HEALTH_DATA, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if("Success".equals(response.getString("Response"))){
+
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+
                                     }
                                 }
                             } catch (JSONException e) {
@@ -422,4 +540,7 @@ public class HomeActivity extends android.support.v4.app.FragmentActivity  imple
                 });
         alertDialog.show();
     }
+
+
+
 }

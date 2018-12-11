@@ -4,7 +4,7 @@ public class Endpoints {
 
     //public static final String WEBSERVICE_IP = "http://xevizero.pythonanywhere.com";
     //public static final String WEBSERVICE_PORT ="";
-    public static final String WEBSERVICE_IP = "http://10.0.2.2";
+    public static final String WEBSERVICE_IP = "http://192.168.1.24";
     public static final String WEBSERVICE_PORT =":5000";
     public static final String WEBSERVICE_ROUTE = "/android/";
     public static final String WEBSERVICE_URL = WEBSERVICE_IP + WEBSERVICE_PORT + WEBSERVICE_ROUTE;
@@ -22,4 +22,5 @@ public class Endpoints {
     public static final String WEBSERVICE_URL_REMOVE_FRIEND_REQUEST = WEBSERVICE_URL + "remove_friend_request";
     public static final String WEBSERVICE_URL_SUBSCRIPTION_REQUEST = WEBSERVICE_URL + "subscription_request";
     public static final String WEBSERVICE_URL_HOMEPAGE = WEBSERVICE_URL + "homepage";
+    public static final String WEBSERVICE_URL_SYNC_HEALTH_DATA = WEBSERVICE_URL + "sync_health_data";
 }
