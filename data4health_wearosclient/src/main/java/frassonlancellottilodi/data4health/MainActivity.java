@@ -313,6 +313,7 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
 
             // Construct a DataRequest and send over the data layer
             PutDataMapRequest putDMR = PutDataMapRequest.create(path);
+            Wearable.DataApi.deleteDataItems(googleApiClient,putDMR.getUri());
             putDMR.getDataMap().putAll(dataMap);
             PutDataRequest request = putDMR.asPutDataRequest();
             request.setUrgent();

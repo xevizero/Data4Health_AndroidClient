@@ -12,7 +12,7 @@ public class ListenerService extends WearableListenerService{
 
     @Override
     public void onCreate(){
-        Log.d("SERVICE", "ON");
+        Log.d("WEARSERVICE", "ON");
     }
 
     private static final String WEARABLE_DATA_PATH = "/wearable_data";

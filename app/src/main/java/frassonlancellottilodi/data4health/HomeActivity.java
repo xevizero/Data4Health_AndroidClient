@@ -50,6 +50,7 @@ import java.util.Date;
 
 import frassonlancellottilodi.data4health.utils.APIUtils;
 import frassonlancellottilodi.data4health.utils.Encryption;
+import frassonlancellottilodi.data4health.utils.SquareImageView;
 
 import static frassonlancellottilodi.data4health.utils.Constants.PHONE_DATA_PATH;
 import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_CURRENT_STEPS;
@@ -162,11 +163,13 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         pictureContainer.setLayoutParams(paramsPictureContainer);
         pictureContainer.setGravity(Gravity.CENTER_VERTICAL | RelativeLayout.CENTER_HORIZONTAL);
 
-        ImageView photoImageView = new ImageView(this);
-        RelativeLayout.LayoutParams paramsImage = new RelativeLayout.LayoutParams(pxFromDp(this, 80), pxFromDp(this, 80));
+        SquareImageView photoImageView = new SquareImageView(this);
+        RelativeLayout.LayoutParams paramsImage = new RelativeLayout.LayoutParams(pxFromDp(this, 56), pxFromDp(this, 56));
         //paramsImage.setMargins(30,30,30,30);
         photoImageView.setLayoutParams(paramsImage);
         photoImageView.setImageResource(R.drawable.bgspinner);
+        photoImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        photoImageView.setElevation(pxFromDp(this, 6));
         photoImageView.setBackgroundResource(R.drawable.ripplecirclewhite);
         photoImageView.setTransitionName("ProfilePictureTransitionHomePage");
         downloadProfilePicture(response -> photoImageView.setImageBitmap(response), email);
@@ -186,7 +189,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onStart() {
         super.onStart();
         googleApiClient = googleAPIClientBuild(this, this, this);
-        googleAPIConnect(this, googleApiClient);
+        googleAPIConnect(googleApiClient);
     }
 
     public static GoogleApiClient googleAPIClientBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener){
@@ -198,16 +201,13 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                 .build();
     }
 
-    public static void googleAPIConnect(final Activity activity, final GoogleApiClient mGoogleApiClient){
+    public static void googleAPIConnect(final GoogleApiClient mGoogleApiClient){
         Log.d(TAG, "google API connect called");
         if(!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
         }
     }
 
-    private void wear_sendCurrentStepsCount(){
-
-    }
 
     // Disconnect from the data layer when the Activity stops
     @Override
@@ -296,6 +296,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
             // Construct a DataRequest and send over the data layer
             PutDataMapRequest putDMR = PutDataMapRequest.create(path);
+            Wearable.DataApi.deleteDataItems(googleApiClient,putDMR.getUri());
             putDMR.getDataMap().putAll(dataMap);
             PutDataRequest request = putDMR.asPutDataRequest();
             request.setUrgent();

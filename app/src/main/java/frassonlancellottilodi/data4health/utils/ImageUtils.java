@@ -18,24 +18,48 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
 
 public class ImageUtils {
 
-    public static Bitmap getCroppedBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+    public static Bitmap getCroppedBitmap(Bitmap srcBmp) {
+
+        if (srcBmp.getWidth() >= srcBmp.getHeight()){
+
+            srcBmp = Bitmap.createBitmap(
+                    srcBmp,
+                    srcBmp.getWidth()/2 - srcBmp.getHeight()/2,
+                    0,
+                    srcBmp.getHeight(),
+                    srcBmp.getHeight()
+            );
+
+        }else{
+
+            srcBmp = Bitmap.createBitmap(
+                    srcBmp,
+                    0,
+                    srcBmp.getHeight()/2 - srcBmp.getWidth()/2,
+                    srcBmp.getWidth(),
+                    srcBmp.getWidth()
+            );
+        }
+
+
+
+        Bitmap output = Bitmap.createBitmap(srcBmp.getWidth(),
+                srcBmp.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final int color = 0xff424242;
         final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final Rect rect = new Rect(0, 0, srcBmp.getWidth(), srcBmp.getHeight());
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
         paint.setColor(color);
         // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-        int radius = (bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() / 2 : bitmap.getWidth() / 2;
-        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+        int radius = (srcBmp.getWidth() > srcBmp.getHeight()) ? srcBmp.getHeight() / 2 : srcBmp.getWidth() / 2;
+        canvas.drawCircle(srcBmp.getWidth() / 2, srcBmp.getHeight() / 2,
                 radius, paint);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
+        canvas.drawBitmap(srcBmp, rect, rect, paint);
         //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
         //return _bmp;
         return output;

@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import frassonlancellottilodi.data4health.utils.APIUtils;
+import frassonlancellottilodi.data4health.utils.SquareImageView;
 
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
@@ -68,6 +69,7 @@ public class SearchActivity extends AppCompatActivity {
         searchField.addTextChangedListener(searchFieldWatcher());
         searchButton.setOnClickListener(v -> {
             if(searchField.getText().length()>0){
+                searchScrollViewContainer.removeAllViews();
                 downloadSearchResults(String.valueOf(searchField.getText()));
             }else{
                 searchScrollViewContainer.removeAllViews();
@@ -170,10 +172,11 @@ public class SearchActivity extends AppCompatActivity {
         photoContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 0.2f));
         photoContainer.setGravity(Gravity.CENTER);
 
-        ImageView photoImageView = new ImageView(this);
+        SquareImageView photoImageView = new SquareImageView(this);
         RelativeLayout.LayoutParams paramsImage = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
         paramsImage.setMargins(30,30,30,30);
         photoImageView.setLayoutParams(paramsImage);
+        photoImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         photoImageView.setImageResource(R.drawable.bgspinner);
         photoImageView.setTransitionName("ProfilePictureTransitionHomePage");
         downloadProfilePicture(response -> photoImageView.setImageBitmap(response), email);
