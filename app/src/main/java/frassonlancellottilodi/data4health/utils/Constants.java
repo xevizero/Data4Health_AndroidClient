@@ -7,5 +7,6 @@ public class Constants {
     public static final String RESPONSE_CURRENT_STEPS = "RESPONSE_CURRENT_STEPS";
     public static final String REQUEST_SYNC_DATA_FROM_WATCH = "REQUEST_SYNC_DATA_FROM_WATCH";
     public static final String REQUEST_EMERGENCY_SOS = "REQUEST_EMERGENCY_SOS";
+    public static final String FALL = "FALL";
 
 }

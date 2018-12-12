@@ -23,4 +23,6 @@ public class Endpoints {
     public static final String WEBSERVICE_URL_SUBSCRIPTION_REQUEST = WEBSERVICE_URL + "subscription_request";
     public static final String WEBSERVICE_URL_HOMEPAGE = WEBSERVICE_URL + "homepage";
     public static final String WEBSERVICE_URL_SYNC_HEALTH_DATA = WEBSERVICE_URL + "sync_health_data";
+    public static final String WEBSERVICE_URL_MANAGE_AUTOMATEDSOS = WEBSERVICE_URL + "manage_automatedsos";
+    public static final String WEBSERVICE_URL_EMERGENCY_AUTOMATEDSOS = WEBSERVICE_URL + "emergency_automatedsos";
 }

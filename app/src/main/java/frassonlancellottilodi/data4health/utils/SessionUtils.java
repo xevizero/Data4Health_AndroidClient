@@ -61,4 +61,13 @@ public class SessionUtils {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
         return encryption.decryptOrNull(preferences.getString("AutomatedSOSOn","false"));
     }
+
+    public static void setAutomatedSOSStatus(Context applicationContext, boolean status){
+        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("AutomatedSOSOn", encryption.encryptOrNull(String.valueOf(status)));
+        editor.apply();
+    }
 }

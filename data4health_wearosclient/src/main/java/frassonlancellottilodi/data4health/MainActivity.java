@@ -22,6 +22,7 @@ import android.support.wear.ambient.AmbientModeSupport;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -45,8 +46,10 @@ import java.util.Date;
 
 import frassonlancellottilodi.data4health.utils.Encryption;
 
+import static frassonlancellottilodi.data4health.utils.Constants.FALL;
 import static frassonlancellottilodi.data4health.utils.Constants.PHONE_DATA_PATH;
 import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_CURRENT_STEPS;
+import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_EMERGENCY_SOS;
 import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_SYNC_DATA_FROM_WATCH;
 import static frassonlancellottilodi.data4health.utils.Constants.RESPONSE_CURRENT_STEPS;
 import static frassonlancellottilodi.data4health.utils.Constants.WEARABLE_DATA_PATH;
@@ -67,19 +70,31 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
     private boolean authInProgress = false;
     private SensorManager mSensorManager;
     private SensorEventListener mSensorEventListener;
-    private Sensor stepSensor, heartSensor;
+    private Sensor stepSensor, heartSensor, accelerometer;
     private int maxdelay = 0, mSteps, mCounterSteps, mPreviousCounterSteps, syncTimeout = 20000;
     private final int MY_PERMISSIONS_REQUEST_BODY_SENSOR = 202;
+    private float[] gravity = new float[3];
+    private float[] linear_acceleration = new float[3];
+    private long timeFallStart, timeFallEnd, fallThreshold = 150, timeDownStart, timeDownEnd, downThreshold = 4000;
+    private boolean isFalling = false, isDown = false, isAutomatedSOSOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeUI();
+        initializeSensors();
+
+    }
+
+    private void initializeUI(){
         textHeart = findViewById(R.id.textHeart);
         textSteps = findViewById(R.id.textSteps);
         textAutomatedSOS = findViewById(R.id.textAutomatedSOS);
-        textAutomatedSOS.setText("AUTOMATED SOS: OFF");
+        final String automatedSOSOn = readSharedPrefs("AutomatedSOSOn");
+        isAutomatedSOSOn = Boolean.valueOf(automatedSOSOn);
+        textAutomatedSOS.setText((isAutomatedSOSOn)?"AUTOMATED SOS: ON":"AUTOMATED SOS: OFF");
         Typeface font = Typeface.createFromAsset(this.getAssets(), "fonts/Montserrat-Light.ttf");
         textHeart.setTypeface(font);
         textSteps.setTypeface(font);
@@ -87,7 +102,7 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
 
         // Enables Always-on
         setAmbientEnabled();
-        initializeSensors();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initializeSensors(){
@@ -109,8 +124,14 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
                 mSensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
         mSensorManager.registerListener(
                 mSensorEventListener, heartSensor, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
+        if(isAutomatedSOSOn){
+            accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mSensorManager.registerListener(
+                    mSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
+        }
 
-        writeSharedPrefs("lastSyncTime", String.valueOf(0));
+
+        //writeSharedPrefs("lastSyncTime", String.valueOf(0));
     }
 
 
@@ -143,6 +164,65 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
                     textHeart.setText(heartRateValue);
                     writeSharedPrefs("currentHeartRate", heartRateValue);
 
+                }else if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+
+                    if(isAutomatedSOSOn){
+
+                        // alpha is calculated as t / (t + dT)
+                        // with t, the low-pass filter's time-constant
+                        // and dT, the event delivery rate
+
+                        final float alpha = 0.8f;
+
+                        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+                        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+                        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+                        linear_acceleration[0] = event.values[0] - gravity[0];
+                        linear_acceleration[1] = event.values[1] - gravity[1];
+                        linear_acceleration[2] = event.values[2] - gravity[2];
+
+                        Double linearAccelerationResultant = Math.sqrt(linear_acceleration[0] * linear_acceleration[0] + linear_acceleration[1] * linear_acceleration[1] + linear_acceleration[2] * linear_acceleration[2]);
+                        //String linearAccelerationStr = String.valueOf(linearAccelerationResultant);
+                        //Log.d(TAG, "acce "+linearAccelerationStr + " TEMPO " + System.currentTimeMillis());
+                        if(linearAccelerationResultant > 70 && linearAccelerationResultant < 100){
+                            isDown = false;
+                            if(isFalling){
+
+                            }else{
+                                isFalling = true;
+                                timeFallStart = System.currentTimeMillis();
+                            }
+                        }else if(linearAccelerationResultant < 1f){
+                                if(isFalling && !isDown){
+                                    isFalling = false;
+                                    timeFallEnd = System.currentTimeMillis();
+                                    final long fallTime = timeFallEnd - timeFallStart;
+                                    if (fallTime > fallThreshold){
+                                        isDown = true;
+                                        timeDownStart = System.currentTimeMillis();
+                                    }
+                                }else if (!isFalling && isDown){
+                                    timeDownEnd = System.currentTimeMillis();
+                                    final long downTime = timeDownEnd - timeDownStart;
+                                    if (downTime > downThreshold){
+                                        isDown = false;
+                                        sendEmergencyRequest();
+                                    }
+                                }else{
+                                    isFalling = false;
+                                    isDown = false;
+                                }
+                        }else if(linearAccelerationResultant < 100){
+
+                        }else{
+                            isDown = false;
+                            isFalling = false;
+                        }
+
+
+
+                    }
                 }
             }
 
@@ -161,6 +241,14 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         dataMap.putString("request", REQUEST_SYNC_DATA_FROM_WATCH);
         dataMap.putString("steps", readSharedPrefs("currentSteps"));
         dataMap.putString("heartrate", readSharedPrefs("currentHeartRate"));
+        new SendToDataLayerThread(PHONE_DATA_PATH, dataMap).start();
+    }
+
+    private void sendEmergencyRequest(){
+        DataMap dataMap = new DataMap();
+        dataMap.putLong("time", new Date().getTime());
+        dataMap.putString("request", REQUEST_EMERGENCY_SOS);
+        dataMap.putString("emergency", FALL);
         new SendToDataLayerThread(PHONE_DATA_PATH, dataMap).start();
     }
 
@@ -283,6 +371,11 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
                 mSensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
         mSensorManager.registerListener(
                 mSensorEventListener, heartSensor, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
+        if(isAutomatedSOSOn){
+            accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mSensorManager.registerListener(
+                    mSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL, maxdelay);
+        }
     }
 
     @Override
@@ -339,8 +432,13 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         String requestName = dataMap.getString("request");
         if (requestName.equals(RESPONSE_CURRENT_STEPS)){
             String steps = dataMap.getString("steps");
+            String automatedSOSOn = dataMap.getString("automatedSOS");
             writeSharedPrefs("currentSteps", steps);
+            writeSharedPrefs("AutomatedSOSOn", automatedSOSOn);
             textSteps.setText(steps);
+            boolean automatedSOSStatus = Boolean.valueOf(automatedSOSOn);
+            textAutomatedSOS.setText((automatedSOSStatus)?"AUTOMATED SOS: ON":"AUTOMATED SOS: OFF");
+            isAutomatedSOSOn = automatedSOSStatus;
             startDataSync();
         }
     }

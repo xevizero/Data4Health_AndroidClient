@@ -1,20 +1,29 @@
 package frassonlancellottilodi.data4health;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,11 +63,14 @@ import frassonlancellottilodi.data4health.utils.SquareImageView;
 
 import static frassonlancellottilodi.data4health.utils.Constants.PHONE_DATA_PATH;
 import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_CURRENT_STEPS;
+import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_EMERGENCY_SOS;
 import static frassonlancellottilodi.data4health.utils.Constants.REQUEST_SYNC_DATA_FROM_WATCH;
 import static frassonlancellottilodi.data4health.utils.Constants.RESPONSE_CURRENT_STEPS;
 import static frassonlancellottilodi.data4health.utils.Constants.WEARABLE_DATA_PATH;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_EMERGENCY_AUTOMATEDSOS;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_HOMEPAGE;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_IMAGES;
+import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_MANAGE_AUTOMATEDSOS;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_PROFILE;
 import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_SYNC_HEALTH_DATA;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.checkLogin;
@@ -66,6 +78,7 @@ import static frassonlancellottilodi.data4health.utils.SessionUtils.getAuthToken
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getAutomatedSOSStatus;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.getLoggedUserEmail;
 import static frassonlancellottilodi.data4health.utils.SessionUtils.revokeAuthToken;
+import static frassonlancellottilodi.data4health.utils.SessionUtils.setAutomatedSOSStatus;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
 import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 import static frassonlancellottilodi.data4health.utils.UIUtils.pxFromDp;
@@ -77,7 +90,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         GoogleApiClient.OnConnectionFailedListener,
         CapabilityClient.OnCapabilityChangedListener,
         DataClient.OnDataChangedListener,
-        MessageClient.OnMessageReceivedListener{
+        MessageClient.OnMessageReceivedListener {
 
     private LinearLayout profileButton, data4helpButton, peopleBar, addFriendButtonContainer, automatedSOSButton;
     private ImageView notificationsButton;
@@ -90,7 +103,10 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     private static final String AUTH_PENDING = "isAuthPending";
     private GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
-    private final static int SERVICE_REQUEST_CODE = 8;
+    private final static int SERVICE_REQUEST_CODE = 8, MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private final static long locationUpdateTime = 5000;
+    private final static float  locationUpdateDistance = 25;
+    private LocationManager mLocationManager;
 
 
     @Override
@@ -103,12 +119,21 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
 
+        initializeLocationService();
         downloadHomeData();
     }
 
-    private void initializeUI(String name, String surname, JSONArray emails) throws JSONException {
+    private void initializeLocationService() {
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    }
+
+    private void initializeUI(String name, String surname, JSONArray emails, boolean automatedSOSOn) throws JSONException {
 
         titleView = findViewById(R.id.titlehome);
+
+        titleView.setOnClickListener(v -> sendEmergencyRequest("FALL", false, 0d, 0d));
+
+
         titleView.setTypeface(getTitleFont(this));
         profileButton = findViewById(R.id.homepageProfileButton);
         data4helpButton = findViewById(R.id.homepageData4HealthButton);
@@ -120,6 +145,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         addFriendButton = findViewById(R.id.homePageAddFriendButton);
         automatedSOSButton = findViewById(R.id.homepageAutomatedSOSButton);
         automatedSOSIcon = findViewById(R.id.homepageAutomatedSOSIcon);
+
+
+        setAutomatedSOSStatus(this, automatedSOSOn);
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -142,7 +170,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         downloadProfilePicture(response -> profilePicture.setImageBitmap(response), getLoggedUserEmail(this));
 
         peopleBar.removeView(addFriendButtonContainer);
-        for(int i = 0; i < emails.length(); i++){
+        for (int i = 0; i < emails.length(); i++) {
             final String ext_email = emails.getJSONObject(i).getString("Email");
             peopleBar.addView(generatePersonImageContainer(ext_email));
         }
@@ -152,14 +180,24 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
             startActivity(intent);
         });
         automatedSOSButton.setOnClickListener(v -> displayActivateAutomatedSOSDialog());
-        automatedSOSIcon.setImageResource((getAutomatedSOSStatus(this) != null && getAutomatedSOSStatus(this).equals("true"))?R.drawable.medic2:R.drawable.medic2_grey);
+        automatedSOSIcon.setImageResource((getAutomatedSOSStatus(this) != null && getAutomatedSOSStatus(this).equals("true")) ? R.drawable.medic2 : R.drawable.medic2_grey);
+        if (getAutomatedSOSStatus(this).equals("true")) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                checkLocationPermission();
+            } else {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, locationUpdateTime,
+                        locationUpdateDistance, mLocationListener);
+            }
+        }else{
+            mLocationManager.removeUpdates(mLocationListener);
+        }
 
     }
 
-    private RelativeLayout generatePersonImageContainer(String email){
+    private RelativeLayout generatePersonImageContainer(String email) {
         RelativeLayout pictureContainer = new RelativeLayout(this);
         LinearLayout.LayoutParams paramsPictureContainer = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        paramsPictureContainer.setMargins(0,0,0,0);
+        paramsPictureContainer.setMargins(0, 0, 0, 0);
         pictureContainer.setLayoutParams(paramsPictureContainer);
         pictureContainer.setGravity(Gravity.CENTER_VERTICAL | RelativeLayout.CENTER_HORIZONTAL);
 
@@ -192,7 +230,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         googleAPIConnect(googleApiClient);
     }
 
-    public static GoogleApiClient googleAPIClientBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener){
+    public static GoogleApiClient googleAPIClientBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener) {
 
         return new GoogleApiClient.Builder(activity)
                 .addConnectionCallbacks(connectionCallbacks)
@@ -201,9 +239,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                 .build();
     }
 
-    public static void googleAPIConnect(final GoogleApiClient mGoogleApiClient){
+    public static void googleAPIConnect(final GoogleApiClient mGoogleApiClient) {
         Log.d(TAG, "google API connect called");
-        if(!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
+        if (!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
         }
     }
@@ -231,34 +269,34 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if( !authInProgress ) {
+        if (!authInProgress) {
             Log.d(TAG, "!AUTHINPROG");
             try {
                 authInProgress = true;
                 connectionResult.startResolutionForResult(this, 1);
-            } catch(IntentSender.SendIntentException e ) {
+            } catch (IntentSender.SendIntentException e) {
                 Log.d(TAG, "SendIntentExc: " + e.toString());
             }
         } else {
-            Log.d(TAG, "authInProgress" );
+            Log.d(TAG, "authInProgress");
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "OnActivityResult called");
-        if( requestCode == 1) {
+        if (requestCode == 1) {
             authInProgress = false;
-            if( resultCode == RESULT_OK ) {
+            if (resultCode == RESULT_OK) {
                 Log.d(TAG, "Result_OK");
-                if( !googleApiClient.isConnecting() && !googleApiClient.isConnected() ) {
+                if (!googleApiClient.isConnecting() && !googleApiClient.isConnected()) {
                     Log.d(TAG, "Calling googleApiClient.connect again");
                     googleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
                 } else {
                     onConnected(null);
                 }
-            } else if( resultCode == RESULT_CANCELED ) {
-                Log.d( TAG, "RESULT_CANCELED" );
+            } else if (resultCode == RESULT_CANCELED) {
+                Log.d(TAG, "RESULT_CANCELED");
             }
         } else {
             Log.d(TAG, "requestCode NOT request_oauth");
@@ -296,15 +334,14 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
             // Construct a DataRequest and send over the data layer
             PutDataMapRequest putDMR = PutDataMapRequest.create(path);
-            Wearable.DataApi.deleteDataItems(googleApiClient,putDMR.getUri());
+            Wearable.DataApi.deleteDataItems(googleApiClient, putDMR.getUri());
             putDMR.getDataMap().putAll(dataMap);
             PutDataRequest request = putDMR.asPutDataRequest();
             request.setUrgent();
             DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleApiClient, request).await();
             if (result.getStatus().isSuccess()) {
                 Log.d(TAG, "DataMap: " + dataMap + " sent successfully to data layer ");
-            }
-            else {
+            } else {
                 // Log an error
                 Log.d(TAG, "ERROR: failed to send DataMap to data layer");
             }
@@ -317,7 +354,6 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
         }
     }
-
 
 
     @Override
@@ -341,16 +377,30 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         }
     }
 
-    private void handleWearDataMap(DataMap dataMap){
+    private void handleWearDataMap(DataMap dataMap) {
         String requestName = dataMap.getString("request");
-        if (requestName.equals(REQUEST_CURRENT_STEPS)){
+        if (requestName.equals(REQUEST_CURRENT_STEPS)) {
             downloadStepData();
         }
-        if (requestName.equals(REQUEST_SYNC_DATA_FROM_WATCH)){
-            Log.d("DATA UPDATE", ""+dataMap);
+        if (requestName.equals(REQUEST_SYNC_DATA_FROM_WATCH)) {
+            Log.d("DATA UPDATE", "" + dataMap);
             final String heartrate = dataMap.getString("heartrate");
             final String steps = dataMap.getString("steps");
             sendHealthData(heartrate, steps);
+        }
+        if (requestName.equals(REQUEST_EMERGENCY_SOS)) {
+            final String emergencyType = dataMap.getString("emergency");
+            boolean locationAccurate = false;
+            double latitude = 0f, longitude = 0f;
+            if(checkLocationPermission()){
+                Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (location.getAccuracy()<50){
+                    locationAccurate = true;
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                }
+            }
+            sendEmergencyRequest(emergencyType, locationAccurate, latitude, longitude);
         }
     }
 
@@ -384,7 +434,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
     //Communication
 
-    private void downloadHomeData(){
+    private void downloadHomeData() {
         JSONObject POSTParams = new JSONObject();
         try {
             POSTParams.put("Token", getAuthToken(getApplicationContext()));
@@ -396,14 +446,15 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                         response -> {
                             try {
                                 Log.d(TAG, response.toString());
-                                if("Success".equals(response.getString("Response"))){
+                                if ("Success".equals(response.getString("Response"))) {
                                     JSONArray emails = response.getJSONArray("Data");
                                     final String name = response.getString("Name");
                                     final String surname = response.getString("Surname");
-                                    initializeUI(name, surname, emails);
-                                }else if("Error".equals(response.getString("Response"))){
+                                    final boolean automatedSOSOn = response.getBoolean("AutomatedSOSOn");
+                                    initializeUI(name, surname, emails, automatedSOSOn);
+                                } else if ("Error".equals(response.getString("Response"))) {
                                     int errorCode = Integer.valueOf(response.getString("Code"));
-                                    switch (errorCode){
+                                    switch (errorCode) {
                                         case 104:
                                             revokeAuthToken(getApplicationContext(), this);
                                         default:
@@ -419,7 +470,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
-    private void downloadStepData(){
+    private void downloadStepData() {
 
         JSONObject POSTParams = new JSONObject();
         try {
@@ -432,17 +483,18 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                         response -> {
                             try {
                                 Log.d(TAG, response.toString());
-                                if("Success".equals(response.getString("Response"))){
+                                if ("Success".equals(response.getString("Response"))) {
                                     JSONObject responseData = response.getJSONObject("Data");
                                     final String steps = responseData.getString("Steps");
                                     DataMap dataMap = new DataMap();
                                     dataMap.putLong("time", new Date().getTime());
                                     dataMap.putString("request", RESPONSE_CURRENT_STEPS);
                                     dataMap.putString("steps", steps);
+                                    dataMap.putString("automatedSOS", getAutomatedSOSStatus(HomeActivity.this));
                                     new SendToDataLayerThread(WEARABLE_DATA_PATH, dataMap).start();
-                                }else if("Error".equals(response.getString("Response"))){
+                                } else if ("Error".equals(response.getString("Response"))) {
                                     int errorCode = Integer.valueOf(response.getString("Code"));
-                                    switch (errorCode){
+                                    switch (errorCode) {
                                         case 104:
                                             revokeAuthToken(getApplicationContext(), this);
                                         case 105:
@@ -458,7 +510,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
-    private void sendHealthData(String heartrate, String steps){
+    private void sendHealthData(String heartrate, String steps) {
 
         JSONObject POSTParams = new JSONObject();
         try {
@@ -470,6 +522,93 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         }
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (WEBSERVICE_URL_SYNC_HEALTH_DATA, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if ("Success".equals(response.getString("Response"))) {
+
+                                } else if ("Error".equals(response.getString("Response"))) {
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode) {
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void manageAutomatedSOSRequest(Boolean automatedSOSStatusRequest) {
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("AutomatedSOS", automatedSOSStatusRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_MANAGE_AUTOMATEDSOS, POSTParams,
+                        response -> {
+                            try {
+                                Log.d(TAG, response.toString());
+                                if ("Success".equals(response.getString("Response"))) {
+                                    Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
+                                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString("AutomatedSOSOn", encryption.encryptOrNull(((automatedSOSStatusRequest) ? "true" : "false")));
+                                    editor.apply();
+
+                                    automatedSOSIcon.setImageResource((automatedSOSStatusRequest) ? R.drawable.medic2 : R.drawable.medic2_grey);
+
+                                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                        checkLocationPermission();
+                                    }else{
+                                        if(getAutomatedSOSStatus(HomeActivity.this).equals("true")) {
+                                            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, locationUpdateTime,
+                                                    locationUpdateDistance, mLocationListener);
+                                        }else{
+                                            mLocationManager.removeUpdates(mLocationListener);
+                                        }
+                                    }
+                                }else if("Error".equals(response.getString("Response"))){
+                                    int errorCode = Integer.valueOf(response.getString("Code"));
+                                    switch (errorCode){
+                                        case 104:
+                                            revokeAuthToken(getApplicationContext(), this);
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error ->
+                                displayErrorAlert("There was a problem with your request!", error.getLocalizedMessage(), this));
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+    private void sendEmergencyRequest(String requestType, Boolean locationAccurate, Double locationLat, Double locationLong){
+
+        JSONObject POSTParams = new JSONObject();
+        try {
+            POSTParams.put("Token", getAuthToken(getApplicationContext()));
+            POSTParams.put("Type", requestType);
+            POSTParams.put("Accurate", locationAccurate);
+            POSTParams.put("Latitude", locationLat);
+            POSTParams.put("Longitude", locationLong);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (WEBSERVICE_URL_EMERGENCY_AUTOMATEDSOS, POSTParams,
                         response -> {
                             try {
                                 Log.d(TAG, response.toString());
@@ -499,25 +638,12 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                 response -> callback.onSuccess(response), 100, 100, ImageView.ScaleType.CENTER_CROP,null,
                 error -> imageDownloadErrorHandler());
 
-
         Volley.newRequestQueue(this).add(imageRequest);
-
 
     }
 
     private void imageDownloadErrorHandler(){
         //Nothing for now
-    }
-
-    private void manageAutomatedSOS(Boolean setting){
-        Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("AutomatedSOSOn", encryption.encryptOrNull(((setting)?"true":"false")));
-        editor.apply();
-
-        automatedSOSIcon.setImageResource((setting)?R.drawable.medic2:R.drawable.medic2_grey);
     }
 
     private void displayActivateAutomatedSOSDialog(){
@@ -533,7 +659,10 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
                 (dialog, which) -> {
                     dialog.dismiss();
-                    manageAutomatedSOS(!finalAutomatedSOSStatus);
+                    if (!finalAutomatedSOSStatus == true){
+                        checkLocationPermission();
+                    }
+                    manageAutomatedSOSRequest(!finalAutomatedSOSStatus);
                 });
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
                 (dialog, which) -> {
@@ -542,6 +671,101 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         alertDialog.show();
     }
 
+    private final LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            Log.d(TAG, String.valueOf(location.getAccuracy()));
+        }
 
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(this)
+                        .setTitle("AutomatedSOS")
+                        .setMessage("This functionality requires access to your location to work properly.")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(HomeActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        if (getAutomatedSOSStatus(this).equals("true")) {
+                                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, locationUpdateTime,
+                                        locationUpdateDistance, mLocationListener);
+                            }else{
+                                mLocationManager.removeUpdates(mLocationListener);
+
+                        }
+                        }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                }
+                return;
+            }
+
+        }
+    }
 
 }
