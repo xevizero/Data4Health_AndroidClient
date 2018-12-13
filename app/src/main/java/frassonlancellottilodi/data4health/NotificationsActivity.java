@@ -60,6 +60,13 @@ public class NotificationsActivity extends AppCompatActivity {
         downloadNotifications();
     }
 
+    /**
+     * Initializes the UI and sets the Listeners. Here it is called after the data has been already retrieved by the network.
+     * (This is not necessarily a good practice and should be handled better in future versions)
+     * @param requests friend requests
+     * @param alerts automatedSOS alerts from users who the main user is subscribed to
+     * @throws JSONException
+     */
     private void initializeUI(JSONArray requests, JSONArray alerts) throws JSONException {
         notificationsScrollViewContainer = findViewById(R.id.notificationsscrollviewContainer);
         titleNotifications = findViewById(R.id.titlenotifications);
@@ -112,6 +119,9 @@ public class NotificationsActivity extends AppCompatActivity {
         notificationsScrollViewContainer.addView(paddingScrollView);
     }
 
+    /**
+     * Sends a request to the server that automatically rejects all friend requests
+     */
     private void clearAllRequest(){
 
         JSONObject POSTParams = new JSONObject();
@@ -151,6 +161,9 @@ public class NotificationsActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Downloads all notification data before initializing the UI
+     */
     private void downloadNotifications(){
 
         JSONObject POSTParams = new JSONObject();
@@ -187,6 +200,12 @@ public class NotificationsActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Submits an answer to a friend request to the server
+     * @param email the email of the user who we are responding to
+     * @param answer whether we accept the request or not
+     * @param v the view that displays the notification that showed this request
+     */
     private void submitAnswerFriendRequest(String email, Boolean answer, View v){
 
         JSONObject POSTParams = new JSONObject();
@@ -249,6 +268,13 @@ public class NotificationsActivity extends AppCompatActivity {
         return dotsContainer;
     }
 
+    /**
+     * Generates a view that displays a notification with a given content
+     * @param notificationTitle
+     * @param notificationMessage
+     * @param email of the user we want to retrieve the image of
+     * @return
+     */
     private LinearLayout generateNotificationCard(String notificationTitle, String notificationMessage, String email){
 
         LinearLayout verticalColumn = new LinearLayout(this);
@@ -358,6 +384,12 @@ public class NotificationsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Displays an AlertDialog that allows the user to choose to accept or dismiss a friend request
+     * @param email
+     * @param picture
+     * @param v
+     */
     private void displayRequestChoiceDialog(String email, ImageView picture, View v){
         AlertDialog alertDialog = new AlertDialog.Builder(NotificationsActivity.this).create();
         alertDialog.setTitle("What do you want to do?");

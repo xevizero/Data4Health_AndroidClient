@@ -18,7 +18,11 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
-
+/**
+ * Listener service that should manage the connection between the wearable and the phone.
+ * Currently totally unreliable probably due to Android battery optimizations, needs further work.
+ * At the moment the connection is entirely handled by live listeners in the home activity and in the Main wear activity.
+ */
 public class ListenerService extends WearableListenerService implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         CapabilityClient.OnCapabilityChangedListener,

@@ -10,6 +10,9 @@ import android.widget.Toast;
 import frassonlancellottilodi.data4health.HomeActivity;
 import frassonlancellottilodi.data4health.LoginActivity;
 
+/**
+ * Stores the session and provides some quick methods to check user settings.
+ */
 public class SessionUtils {
 
     public static void checkLogin(Context applicationContext, Activity packageContext, Boolean loginPage){
@@ -27,6 +30,11 @@ public class SessionUtils {
 
     }
 
+    /**
+     * When called, clears the user's SharedPreferences and kicks him out to the login page.
+     * @param applicationContext
+     * @param packageContext
+     */
     public static void revokeAuthToken(Context applicationContext, Activity packageContext){
         Encryption encryption = Encryption.getDefault("Kovfefe", "Harambe", new byte[16]);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
@@ -34,6 +42,7 @@ public class SessionUtils {
 
         editor.remove("authToken");
         editor.remove("userEmail");
+        editor.remove("AutomatedSOSOn");
         editor.putString("LoggedIn", encryption.encryptOrNull("false"));
         editor.apply();
 

@@ -23,7 +23,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -84,8 +83,6 @@ import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 import static frassonlancellottilodi.data4health.utils.UIUtils.pxFromDp;
 
 
-//adb -d forward tcp:5601 tcp:5601
-
 public class HomeActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         CapabilityClient.OnCapabilityChangedListener,
@@ -99,11 +96,10 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     private TextView profileName;
     private ImageView profilePicture, automatedSOSIcon;
 
-    private static final String TAG = "HomeActivity";
-    private static final String AUTH_PENDING = "isAuthPending";
+    private static final String TAG = "HomeActivity", AUTH_PENDING = "isAuthPending";
     private GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
-    private final static int SERVICE_REQUEST_CODE = 8, MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private final static long locationUpdateTime = 1000;
     private final static float  locationUpdateDistance = 25;
     private LocationManager mLocationManager;
@@ -123,10 +119,21 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         downloadHomeData();
     }
 
+    /**
+     * Initializes the locationManager. Could contain more code in the future.
+     */
     private void initializeLocationService() {
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     }
 
+    /**
+     * Initializes the UI, sets listeners
+     * @param name the name of the user
+     * @param surname the surname of the user
+     * @param emails emails of friends
+     * @param automatedSOSOn setting retrieved from the server
+     * @throws JSONException
+     */
     private void initializeUI(String name, String surname, JSONArray emails, boolean automatedSOSOn) throws JSONException {
 
         titleView = findViewById(R.id.titlehome);
@@ -214,6 +221,11 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
+    /**
+     * For the scrollview at the bottom of the page
+     * @param email email of the friend we are building the image for
+     * @return a layout containing the imageview with the person's photo
+     */
     private RelativeLayout generatePersonImageContainer(String email) {
         RelativeLayout pictureContainer = new RelativeLayout(this);
         LinearLayout.LayoutParams paramsPictureContainer = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -243,6 +255,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         return pictureContainer;
     }
 
+    /**
+     * Build the googleApiClient onStart to avoid problems
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -250,6 +265,13 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         googleAPIConnect(googleApiClient);
     }
 
+    /**
+     * Builds the googleApiClient with the APIs required for wear communication
+     * @param activity
+     * @param connectionCallbacks
+     * @param failedListener
+     * @return googleAPIClient (not connected)
+     */
     public static GoogleApiClient googleAPIClientBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener) {
 
         return new GoogleApiClient.Builder(activity)
@@ -259,6 +281,10 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                 .build();
     }
 
+    /**
+     * Connects the googleApiClient when needed
+     * @param mGoogleApiClient
+     */
     public static void googleAPIConnect(final GoogleApiClient mGoogleApiClient) {
         Log.d(TAG, "google API connect called");
         if (!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
@@ -267,7 +293,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    // Disconnect from the data layer when the Activity stops
+    /**
+     * Disconnect from the data layer when the Activity stops
+     */
     @Override
     protected void onStop() {
         Log.d(TAG, "OnStop called");
@@ -336,6 +364,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         outState.putBoolean(AUTH_PENDING, authInProgress);
     }
 
+    /**
+     * This class extends Thread and when run puts a Datamap on the Datalayer for WearOS communication
+     */
     private class SendToDataLayerThread extends Thread {
         String path;
         DataMap dataMap;
@@ -397,6 +428,11 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         }
     }
 
+    /**
+     * This method gets called when a data change is detected on the DataLayer.
+     * The correct action is chosen and performed.
+     * @param dataMap object created by the wearable device
+     */
     private void handleWearDataMap(DataMap dataMap) {
         String requestName = dataMap.getString("request");
         if (requestName.equals(REQUEST_CURRENT_STEPS)) {
@@ -457,6 +493,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
     //Communication
 
+    /**
+     * Download the data needed when opening the HomePage
+     */
     private void downloadHomeData() {
         JSONObject POSTParams = new JSONObject();
         try {
@@ -493,6 +532,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Download the data required by the wearable device when it first starts
+     */
     private void downloadStepData() {
 
         JSONObject POSTParams = new JSONObject();
@@ -533,6 +575,11 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Periodically remotely called by the wearable device to sync data with the cloud service
+     * @param heartrate
+     * @param steps
+     */
     private void sendHealthData(String heartrate, String steps) {
 
         JSONObject POSTParams = new JSONObject();
@@ -567,6 +614,10 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Changes the cloud settings for AutomatedSOS
+     * @param automatedSOSStatusRequest
+     */
     private void manageAutomatedSOSRequest(Boolean automatedSOSStatusRequest) {
 
         JSONObject POSTParams = new JSONObject();
@@ -618,6 +669,13 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Sends an emergency request for AutomatedSOS
+     * @param requestType
+     * @param locationAccurate states whether or not the server should use the default location option for this user
+     * @param locationLat
+     * @param locationLong
+     */
     private void sendEmergencyRequest(String requestType, Boolean locationAccurate, Double locationLat, Double locationLong){
 
         JSONObject POSTParams = new JSONObject();
@@ -669,6 +727,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         //Nothing for now
     }
 
+    /**
+     * Displays an AlertDialog that allows the user to change the status of AutomatedSOS
+     */
     private void displayActivateAutomatedSOSDialog(){
         Boolean automatedSOSStatus = false;
         if(!(getAutomatedSOSStatus(this) == null || getAutomatedSOSStatus(this).equals("false"))){
@@ -722,13 +783,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
                         .setTitle("AutomatedSOS")
                         .setMessage("This functionality requires access to your location to work properly.")
@@ -746,7 +803,6 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
 
             } else {
-                // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
@@ -761,12 +817,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -781,8 +834,6 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
 
                 }
                 return;

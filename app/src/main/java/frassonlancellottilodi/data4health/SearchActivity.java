@@ -58,6 +58,9 @@ public class SearchActivity extends AppCompatActivity {
         initializeUI();
     }
 
+    /**
+     * Initialize the UI and listeners
+     */
     private void initializeUI(){
         searchScrollViewContainer = findViewById(R.id.searchScrollviewContainerSearch);
         titleSearch = findViewById(R.id.titlesearch);
@@ -99,6 +102,11 @@ public class SearchActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Generates the search results fetched from the JSON response and displays them in the dedicated view
+     * @param dataArray the JSON data from the server
+     * @throws JSONException
+     */
     private void populateSearchResults(JSONArray dataArray) throws JSONException {
         for(int i = 0; i < dataArray.length(); i++){
             JSONObject userData = dataArray.getJSONObject(i);
@@ -111,6 +119,10 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Request to download search results
+     * @param query the user search query
+     */
     private void downloadSearchResults(String query){
 
         JSONObject POSTParams = new JSONObject();
@@ -145,6 +157,12 @@ public class SearchActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Generate a view that contains the user name and image
+     * @param name
+     * @param email
+     * @return
+     */
     private LinearLayout generateSearchResult(String name, String email){
 
         LinearLayout horizontalRow = new LinearLayout(this);
@@ -207,7 +225,6 @@ public class SearchActivity extends AppCompatActivity {
 
         return horizontalSeparator;
     }
-
 
 
     private void downloadProfilePicture(final APIUtils.imageRequestCallback callback, String userEmail){

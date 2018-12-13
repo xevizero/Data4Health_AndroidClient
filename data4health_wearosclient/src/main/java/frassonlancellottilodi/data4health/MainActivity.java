@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.wear.ambient.AmbientModeSupport;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -62,10 +61,7 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         GoogleApiClient.OnConnectionFailedListener {
 
     private TextView textSteps, textHeart, textAutomatedSOS;
-
-
     private static final String TAG = "MainActivityWear";
-
     private GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
     private SensorManager mSensorManager;
@@ -88,6 +84,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
 
     }
 
+    /**
+     * Initializes the app UI
+     */
     private void initializeUI(){
         textHeart = findViewById(R.id.textHeart);
         textSteps = findViewById(R.id.textSteps);
@@ -105,6 +104,10 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    /**
+     * Initializes the Step Detector, Heartrate and Accelerometer sensors, then registers a listener to each of them
+     * The AutomatedSOS Setting is kept under consideration to avoid wasting battery on the accelerometer when AutomatedSOS is off
+     */
     private void initializeSensors(){
         if (checkSelfPermission(Manifest.permission.BODY_SENSORS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -135,7 +138,17 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
     }
 
 
-
+    /**
+     * Handles the sensor events from each sensor.
+     * For the step detector, it stores the current steps in a SharedPref file. The number represents the total steps today across all sessions.
+     * For the heartrate sensor, it stores the current heartrate in a SharedPref file.
+     * For the accelerometer sensor, the code is executed only if automatedSOS is on.
+     * For demonstration purposes, the only emergency considered is when the user falls to the ground.
+     * The user is considered to have fallen when a high acceleration is detected which lasts at least a certain number of milliseconds.
+     * The acceleration has then to suddenly stop and the user has to remain still (because unconscious) for a certain number of seconds.
+     * If the conditions are met, a help request is submitted.
+     * @return the listener
+     */
     private SensorEventListener mSensorListener(){
 
         final SensorEventListener mListener = new SensorEventListener() {
@@ -234,6 +247,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         return mListener;
     };
 
+    /**
+     * Sends the current step and heartrate data to the DataLayer
+     */
     private void sendHealthUpdateToPhone(){
 
         DataMap dataMap = new DataMap();
@@ -244,6 +260,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         new SendToDataLayerThread(PHONE_DATA_PATH, dataMap).start();
     }
 
+    /**
+     * Sends an emergencySOS request to the DataLayer
+     */
     private void sendEmergencyRequest(){
         DataMap dataMap = new DataMap();
         dataMap.putLong("time", new Date().getTime());
@@ -252,6 +271,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         new SendToDataLayerThread(PHONE_DATA_PATH, dataMap).start();
     }
 
+    /**
+     * Requests the current steps to the DataLayer, to keep track of previous sessions on the watch
+     */
     private void requestCurrentStepsCount(){
 
         DataMap dataMap = new DataMap();
@@ -260,6 +282,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         new SendToDataLayerThread(PHONE_DATA_PATH, dataMap).start();
     }
 
+    /**
+     * Cycles the sendHealthUpdateToPhone() method call every few seconds
+     */
     private void startDataSync(){
         Handler handler = new Handler();
         Runnable syncData = new Runnable() {
@@ -274,12 +299,23 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         handler.postDelayed(syncData, syncTimeout);
     }
 
+    /**
+     * Build the googleApiClient onStart to avoid problems
+     */
     @Override
     protected void onStart() {
         super.onStart();
         googleApiClient = googleAPIClientBuild(this, this, this);
         googleAPIConnect(this, googleApiClient);
     }
+
+    /**
+     * Builds the googleApiClient with the APIs required for wear communication
+     * @param activity
+     * @param connectionCallbacks
+     * @param failedListener
+     * @return googleAPIClient (not connected)
+     */
     public static GoogleApiClient googleAPIClientBuild(Activity activity, GoogleApiClient.ConnectionCallbacks connectionCallbacks, GoogleApiClient.OnConnectionFailedListener failedListener){
 
         return new GoogleApiClient.Builder(activity)
@@ -289,6 +325,10 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
                 .build();
     }
 
+    /**
+     * Connects the googleApiClient when needed
+     * @param mGoogleApiClient
+     */
     public static void googleAPIConnect(final Activity activity, final GoogleApiClient mGoogleApiClient){
         Log.d(TAG, "google API connect called");
         if(!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
@@ -315,6 +355,11 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
             Log.d(TAG, "authInProgress" );
         }
     }
+
+    /**
+     * Once connected to the DataLayer, request a step update to the server
+     * @param bundle
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "onConnected called");
@@ -388,6 +433,9 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         mSensorManager.unregisterListener(mSensorEventListener);
     }
 
+    /**
+     * This class extends Thread and when run puts a Datamap on the Datalayer for WearOS communication
+     */
     private class SendToDataLayerThread extends Thread {
         String path;
         DataMap dataMap;
@@ -428,6 +476,10 @@ public class MainActivity extends WearableActivity implements AmbientModeSupport
         }
     }
 
+    /**
+     * Handles the data received from the DataLayer and the phone.
+     * @param dataMap
+     */
     private void handlePhoneDataMap(DataMap dataMap){
         String requestName = dataMap.getString("request");
         if (requestName.equals(RESPONSE_CURRENT_STEPS)){

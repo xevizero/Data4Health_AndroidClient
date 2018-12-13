@@ -15,6 +15,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+/**
+ * A custom request that allows the register to send an image together with the registration data all in one go.
+ * Credit to this tutorial: https://www.simplifiedcoding.net/upload-image-to-server/
+ */
 public class VolleyMultipartRequest extends Request<NetworkResponse> {
 
     private final String twoHyphens = "--";

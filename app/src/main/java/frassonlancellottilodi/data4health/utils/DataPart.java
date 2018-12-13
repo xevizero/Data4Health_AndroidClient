@@ -1,5 +1,8 @@
 package frassonlancellottilodi.data4health.utils;
 
+/**
+ * Object class instantiated during VolleyMultipartRequests
+ */
 public class DataPart {
     private String fileName;
     private byte[] content;

@@ -43,6 +43,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Initialize the UI and set up Listeners
+     */
     private void initializeUI(){
         registerButton = findViewById(R.id.loginRegisterButton);
         loginButton = findViewById(R.id.buttonlogin);
@@ -65,6 +68,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Starts the login network request only if all the fields have been fullfilled
+     * @return onClickListener
+     */
     private View.OnClickListener validateLoginRequest(){
         return v -> {
             final String email = String.valueOf(emailEditText.getText());
@@ -89,6 +96,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Network request for login. On success, logs the user in.
+     */
     private void startLoginRequest(){
 
         JSONObject POSTParams = new JSONObject();
@@ -124,6 +134,10 @@ public class LoginActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Saves the login session in the SharedPreferences with a simple encryption key.
+     * @param authToken The token required by the server to authenticate the user.
+     */
     private void saveLoginSession(String authToken){
         final String userEmail = String.valueOf(emailEditText.getText());
 

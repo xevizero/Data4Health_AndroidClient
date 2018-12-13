@@ -21,6 +21,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+
+/**
+ * Encryption class that allows for quick encryption of Strings throughout the application.
+ * Credit to this StackOverflow post: https://stackoverflow.com/a/51381469/2788662
+ */
 public class Encryption {
     private final Builder mBuilder;
 

@@ -3,7 +3,6 @@ package frassonlancellottilodi.data4health;
 import com.android.volley.AuthFailureError;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -22,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -47,15 +45,12 @@ import static frassonlancellottilodi.data4health.utils.Endpoints.WEBSERVICE_URL_
 import static frassonlancellottilodi.data4health.utils.TextUtils.isEmailValid;
 import static frassonlancellottilodi.data4health.utils.UIUtils.displayErrorAlert;
 import static frassonlancellottilodi.data4health.utils.UIUtils.getMainTitleFont;
-import static frassonlancellottilodi.data4health.utils.UIUtils.getTitleFont;
 
 
 public class RegisterActivity extends AppCompatActivity{
 
     private final String TAG = "RegisterActivity";
     private String selectedSex;
-    //--host=192.168.43.60
-
     private Button buttonRegister;
     private ImageView cameraButton;
     private Bitmap profileImage;
@@ -74,9 +69,11 @@ public class RegisterActivity extends AppCompatActivity{
 
         initializeUI();
 
-
     }
 
+    /**
+     * Initialize the UI, set up the listeners
+     */
     private void initializeUI(){
 
         buttonRegister = findViewById(R.id.buttonregister);
@@ -111,7 +108,65 @@ public class RegisterActivity extends AppCompatActivity{
     }
 
 
+    /**
+     * This listener validates all the fields before submitting the sign up request
+     * @return
+     */
+    private View.OnClickListener signUpClickListener(){
 
+        return v -> {
+            final String name = String.valueOf(nameEditText.getText());
+            final String surname = String.valueOf(surnameEditText.getText());
+            final String email = String.valueOf(emailEditText.getText());
+            final String password = String.valueOf(passwordEditText.getText());
+            final String passwordRepeat = String.valueOf(passwordConfirmEditText.getText());
+            Boolean stop = false;
+
+            if (!stop && name.length() == 0){
+                displayErrorAlert("Fulfill al fields!", "Insert your name.", this);
+                stop = true;
+            }
+            if (!stop && surname.length() == 0){
+                displayErrorAlert("Fulfill al fields!", "Insert your surname.", this);
+                stop = true;
+            }
+            if (!stop && email.length() == 0){
+                displayErrorAlert("Fulfill al fields!", "Insert your email.", this);
+                stop = true;
+            }
+            if (!stop && !isEmailValid(email)){
+                displayErrorAlert("Email not valid!", "Insert a valid email.", this);
+                stop = true;
+            }
+            if (!stop && !isStoragePermissionGranted()){
+                checkStoragePermissions();
+                stop = true;
+            }
+            if (!stop && profileImage == null){
+                displayErrorAlert("Please, add a photo", "You have to add a profile photo to sign up to Data4Health.", this);
+                stop = true;
+            }
+            if (!stop && (password.length() == 0 || passwordRepeat.length() == 0)){
+                displayErrorAlert("Fulfill al fields!", "Insert your password.", this);
+                stop = true;
+            }
+            if (!stop && !password.equals(passwordRepeat)){
+                displayErrorAlert("Repeat your password!", "You have to confirm your password.", this);
+                stop = true;
+            }
+            if (!stop && !termsCheckBox.isChecked()){
+                displayErrorAlert("Please, accept Terms and Conditions", "Accept Terms and Conditions to sign up to Data4Health.", this);
+                stop = true;
+            }
+            if(!stop)
+                signUpRequest();
+        };
+    }
+
+    /**
+     * Checks if the user has allowed the app to access the internal storage, needed to gather the image
+     * @return the permission (boolean)
+     */
     private boolean checkStoragePermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -161,57 +216,6 @@ public class RegisterActivity extends AppCompatActivity{
     private View.OnClickListener takeProfilePhotoListener(){
         return v -> {
             displayImageChoiceDialog();
-        };
-    }
-
-    private View.OnClickListener signUpClickListener(){
-
-        return v -> {
-            final String name = String.valueOf(nameEditText.getText());
-            final String surname = String.valueOf(surnameEditText.getText());
-            final String email = String.valueOf(emailEditText.getText());
-            final String password = String.valueOf(passwordEditText.getText());
-            final String passwordRepeat = String.valueOf(passwordConfirmEditText.getText());
-            Boolean stop = false;
-
-            if (!stop && name.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your name.", this);
-                stop = true;
-            }
-            if (!stop && surname.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your surname.", this);
-                stop = true;
-            }
-            if (!stop && email.length() == 0){
-                displayErrorAlert("Fulfill al fields!", "Insert your email.", this);
-                stop = true;
-            }
-            if (!stop && !isEmailValid(email)){
-                displayErrorAlert("Email not valid!", "Insert a valid email.", this);
-                stop = true;
-            }
-            if (!stop && !isStoragePermissionGranted()){
-                checkStoragePermissions();
-                stop = true;
-            }
-            if (!stop && profileImage == null){
-                displayErrorAlert("Please, add a photo", "You have to add a profile photo to sign up to Data4Health.", this);
-                stop = true;
-            }
-            if (!stop && (password.length() == 0 || passwordRepeat.length() == 0)){
-                displayErrorAlert("Fulfill al fields!", "Insert your password.", this);
-                stop = true;
-            }
-            if (!stop && !password.equals(passwordRepeat)){
-                displayErrorAlert("Repeat your password!", "You have to confirm your password.", this);
-                stop = true;
-            }
-            if (!stop && !termsCheckBox.isChecked()){
-                displayErrorAlert("Please, accept Terms and Conditions", "Accept Terms and Conditions to sign up to Data4Health.", this);
-                stop = true;
-            }
-            if(!stop)
-                uploadBitmap();
         };
     }
 
@@ -281,7 +285,10 @@ public class RegisterActivity extends AppCompatActivity{
         }
     }
 
-    private void uploadBitmap() {
+    /**
+     * Submit the multipart request that contains the registration data + the user's picture
+     */
+    private void signUpRequest() {
 
         final String name = String.valueOf(nameEditText.getText());
         final String surname = String.valueOf(surnameEditText.getText());
@@ -294,7 +301,6 @@ public class RegisterActivity extends AppCompatActivity{
         final String developerAccount = String.valueOf(developerCheckBox.isChecked());
         final String anonymousDataSharingON = String.valueOf(datasharingCheckBox.isChecked());
 
-        //our custom volley request
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, WEBSERVICE_URL_REGISTER,
                 response -> {
                     try {
@@ -315,12 +321,6 @@ public class RegisterActivity extends AppCompatActivity{
                 },
                 error -> Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show()) {
 
-            /*
-             * If you want to add more parameters with the image
-             * you can do it here
-             * here we have only one parameter with the image
-             * which is tags
-             * */
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -337,9 +337,6 @@ public class RegisterActivity extends AppCompatActivity{
                 return params;
             }
 
-            /*
-             * Here we are passing image by renaming it with a unique name
-             * */
             @Override
             protected Map<String, DataPart> getByteData() {
                 Map<String, DataPart> params = new HashMap<>();
@@ -348,8 +345,6 @@ public class RegisterActivity extends AppCompatActivity{
                 return params;
             }
         };
-
-        //adding the request to volley
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
 

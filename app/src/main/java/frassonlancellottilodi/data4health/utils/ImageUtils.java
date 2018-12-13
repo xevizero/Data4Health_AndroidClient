@@ -16,6 +16,9 @@ import java.util.Date;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
+/**
+ * Code that relates to manipulating and cropping images.
+ */
 public class ImageUtils {
 
     public static Bitmap getCroppedBitmap(Bitmap srcBmp) {

@@ -5,6 +5,9 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 
+/**
+ * Code useful throughout the app to do some quick operations on the UI
+ */
 public class UIUtils {
 
     public static void displayErrorAlert(String title, String message, Activity packageContext){

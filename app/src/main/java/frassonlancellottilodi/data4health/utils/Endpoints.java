@@ -1,5 +1,8 @@
 package frassonlancellottilodi.data4health.utils;
 
+/**
+ * This class contains the Endpoints that the app needs to reach on the server to interact with the REST API
+ */
 public class Endpoints {
 
     //public static final String WEBSERVICE_IP = "http://xevizero.pythonanywhere.com";

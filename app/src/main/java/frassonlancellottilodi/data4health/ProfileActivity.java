@@ -61,6 +61,22 @@ public class ProfileActivity extends AppCompatActivity {
         downloadProfileData();
     }
 
+    /**
+     * Initializes the UI. Contains some logic to decide how to format the page, with the following cases:
+     * User's own profile page
+     * User's friend profile page
+     * Another user's page, who the user's is not friend with and who could have already received or not a friend request from the user
+     * @param name
+     * @param surname
+     * @param sex
+     * @param birthday
+     * @param steps
+     * @param heartrate
+     * @param emergencytime
+     * @param emergencytype
+     * @param subscription
+     * @param statusCode
+     */
     private void initializeUI(String name, String surname, String sex, String birthday, String steps, String heartrate,
                               String emergencytime, String emergencytype, Boolean subscription, int statusCode){
         title = findViewById(R.id.titleprofile);
@@ -147,6 +163,9 @@ public class ProfileActivity extends AppCompatActivity {
         downloadProfilePicture(userEmail);
     }
 
+    /**
+     * Request to remove this user from the authenticated user's friend list
+     */
     private void removeFriendRequest(){
 
         JSONObject POSTParams = new JSONObject();
@@ -183,6 +202,10 @@ public class ProfileActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * A request to add or remove the subscription option from this user's friendship status
+     * @param subRequest
+     */
     private void sendSubscriptionRequest(Boolean subRequest){
 
         JSONObject POSTParams = new JSONObject();
@@ -221,6 +244,9 @@ public class ProfileActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 
+    /**
+     * Send a friend request to this user
+     */
     private void sendFriendRequest(){
 
         JSONObject POSTParams = new JSONObject();
@@ -258,7 +284,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Downloads all the data relative to this user's page that is accessible by the authenticated user
+     */
     private void downloadProfileData(){
 
         JSONObject POSTParams = new JSONObject();
@@ -322,6 +350,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Parses the birthday string to retrieve the age of the user
+     * @param birthday
+     * @return
+     */
     private String getAge(String birthday){
         int year = Integer.parseInt(birthday.split("-")[0]);
         int month = Integer.parseInt(birthday.split("-")[1]);
@@ -348,6 +381,10 @@ public class ProfileActivity extends AppCompatActivity {
         //Nothing for now
     }
 
+    /**
+     * Alerts the user before allowing him to send a remove friend request
+     * @param message
+     */
     private void displayRemoveFriendDialog(String message){
         AlertDialog alertDialog = new AlertDialog.Builder(ProfileActivity.this).create();
         alertDialog.setTitle("Remove friend");

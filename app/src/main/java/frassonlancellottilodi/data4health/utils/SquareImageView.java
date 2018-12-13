@@ -4,6 +4,10 @@ import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
+/**
+ * Custom ImageView that forces the image to keep a square aspect ratio.
+ * Credit to this StackOverflow user: https://stackoverflow.com/a/51359465/2788662
+ */
 public class SquareImageView extends AppCompatImageView {
 
     public SquareImageView(Context context) {
