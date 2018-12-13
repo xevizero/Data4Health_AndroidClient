@@ -104,7 +104,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
     private GoogleApiClient googleApiClient;
     private boolean authInProgress = false;
     private final static int SERVICE_REQUEST_CODE = 8, MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private final static long locationUpdateTime = 5000;
+    private final static long locationUpdateTime = 1000;
     private final static float  locationUpdateDistance = 25;
     private LocationManager mLocationManager;
 
@@ -131,7 +131,23 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
         titleView = findViewById(R.id.titlehome);
 
-        titleView.setOnClickListener(v -> sendEmergencyRequest("FALL", false, 0d, 0d));
+        titleView.setOnClickListener(v -> {
+            final String emergencyType ="FALL";
+            boolean locationAccurate = false;
+            double latitude = 0f, longitude = 0f;
+            Log.d(TAG, String.valueOf(checkLocationPermission()));
+            if(checkLocationPermission()){
+                Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d(TAG, "gg" + String.valueOf(location.getAccuracy()));
+
+                if (location.getAccuracy()<50){
+                    locationAccurate = true;
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                }
+            }
+            sendEmergencyRequest(emergencyType, locationAccurate, latitude, longitude);
+        });
 
 
         titleView.setTypeface(getTitleFont(this));
@@ -392,8 +408,11 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
             final String emergencyType = dataMap.getString("emergency");
             boolean locationAccurate = false;
             double latitude = 0f, longitude = 0f;
+            Log.d(TAG, String.valueOf(checkLocationPermission()));
             if(checkLocationPermission()){
                 Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d(TAG, "gg" + String.valueOf(location.getAccuracy()));
+
                 if (location.getAccuracy()<50){
                     locationAccurate = true;
                     latitude = location.getLatitude();
@@ -613,7 +632,7 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
                             try {
                                 Log.d(TAG, response.toString());
                                 if("Success".equals(response.getString("Response"))){
-
+                                    displayErrorAlert("AutomatedSOS emergency detected!", "SOS request sent!", this);
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));
                                     switch (errorCode){

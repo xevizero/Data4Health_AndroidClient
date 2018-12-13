@@ -60,7 +60,7 @@ public class NotificationsActivity extends AppCompatActivity {
         downloadNotifications();
     }
 
-    private void initializeUI(JSONArray requests) throws JSONException {
+    private void initializeUI(JSONArray requests, JSONArray alerts) throws JSONException {
         notificationsScrollViewContainer = findViewById(R.id.notificationsscrollviewContainer);
         titleNotifications = findViewById(R.id.titlenotifications);
         clearAllButton = findViewById(R.id.notificationsClearAllButton);
@@ -81,6 +81,23 @@ public class NotificationsActivity extends AppCompatActivity {
 
             int ii = i+1;
             if(!(ii == requests.length()))
+                notificationsScrollViewContainer.addView(generateNotificationSeparator(email));
+
+        }
+        if (alerts.length() > 0 && requests.length() > 0){
+            notificationsScrollViewContainer.addView(generateNotificationSeparator("Alerts"));
+        }
+        for(int i = 0; i < alerts.length(); i++){
+            JSONObject alert = alerts.getJSONObject(i);
+            final String time = alert.getString("EmergencyTime");
+            final String desc = alert.getString("EmergencyType");
+            final String email = alert.getString("Email");
+            final String name = alert.getString("Name");
+            final String surname = alert.getString("Surname");
+            notificationsScrollViewContainer.addView(generateNotificationCard("Alert for " + name + " " + surname + "!", desc + " on " + time.split(" ")[0], email));
+
+            int ii = i+1;
+            if(!(ii == alerts.length()))
                 notificationsScrollViewContainer.addView(generateNotificationSeparator(email));
 
         }
@@ -150,7 +167,8 @@ public class NotificationsActivity extends AppCompatActivity {
                                 if("Success".equals(response.getString("Response"))){
                                     JSONObject responseData = response.getJSONObject("Data");
                                     JSONArray requests = responseData.getJSONArray("Requests");
-                                    initializeUI(requests);
+                                    JSONArray alerts = responseData.getJSONArray("Alerts");
+                                    initializeUI(requests, alerts);
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));
                                     switch (errorCode){

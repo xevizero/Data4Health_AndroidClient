@@ -342,7 +342,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
-                        android:text="Recent Alerts\n(AutomatedSOS)"/>
+                        android:text="Last Alert\n(AutomatedSOS)"/>
                     <TextView
                         android:id="@+id/profilePageAlertsSubText"
                         android:layout_width="match_parent"
@@ -350,10 +350,10 @@
                         android:layout_below="@+id/profilePageAlertsText"
                         android:textAlignment="center"
                         android:textColor="#000000"
-                        android:textSize="20dp"
+                        android:textSize="15dp"
                         android:textStyle="bold"
                         android:layout_margin="5dp"
-                        android:text="None"/>
+                        android:text=""/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"

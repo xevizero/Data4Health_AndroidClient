@@ -44,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Boolean personalProfile;
     private ImageView profilePicture;
     private String userEmail;
-    private TextView text1, text2, nameText, stepsText, heartrateText, sendRequestText;
+    private TextView text1, text2, nameText, stepsText, heartrateText, sendRequestText, alertText;
     private LinearLayout buttonSteps, buttonHeart, buttonSOS, separator1, separator2, separator3, requestButtonContainer;
     private RelativeLayout deleteFriendContainer;
     private CheckBox subscriptionCheckbox;
@@ -61,7 +61,8 @@ public class ProfileActivity extends AppCompatActivity {
         downloadProfileData();
     }
 
-    private void initializeUI(String name, String surname, String sex, String birthday, String steps, String heartrate, Boolean subscription, int statusCode){
+    private void initializeUI(String name, String surname, String sex, String birthday, String steps, String heartrate,
+                              String emergencytime, String emergencytype, Boolean subscription, int statusCode){
         title = findViewById(R.id.titleprofile);
         nameText  = findViewById(R.id.profilePageProfileName);
         text1 = findViewById(R.id.profilePageProfileText1);
@@ -81,6 +82,7 @@ public class ProfileActivity extends AppCompatActivity {
         separator3 = findViewById(R.id.profilePageSeparator3);
         deleteFriendButton = findViewById(R.id.profilepageRemoveFriendButton);
         deleteFriendContainer = findViewById(R.id.profilepageRemoveFriendButtonContainer);
+        alertText = findViewById(R.id.profilePageAlertsSubText);
 
         title.setTypeface(getTitleFont(this));
         title.setText((personalProfile)?"Your profile":"Profile");
@@ -89,9 +91,16 @@ public class ProfileActivity extends AppCompatActivity {
         nameText.setText(name + " " + surname);
         String age = getAge(birthday);
         text1.setText(sex + ", " + age);
+
+        emergencytime = emergencytime.split(" ")[0];
+
         if(personalProfile || statusCode == 1){
             stepsText.setText(steps);
             heartrateText.setText(heartrate);
+            if(!emergencytime.equals("0"))
+                alertText.setText(emergencytime + " - " + emergencytype);
+            else
+                alertText.setText("None");
         }else{
             buttonHeart.setVisibility(View.GONE);
             buttonSOS.setVisibility(View.GONE);
@@ -273,13 +282,15 @@ public class ProfileActivity extends AppCompatActivity {
                                     final String birthday = responseData.getString("Birthday");
                                     final String steps = responseData.getString("Steps");
                                     final String heartrate = responseData.getString("Heartbeat");
+                                    final String emergencytime = responseData.getString("EmergencyTime");
+                                    final String emergencytype = responseData.getString("EmergencyType");
                                     Boolean subscription = false;
                                     int statusCode = 0;
                                     if(!personalProfile) {
                                             subscription = responseData.getBoolean("Subscription");
                                             statusCode = responseData.getInt("StatusCode");
                                     }
-                                    initializeUI(name, surname, sex, birthday, steps, heartrate, subscription, statusCode);
+                                    initializeUI(name, surname, sex, birthday, steps, heartrate, emergencytime, emergencytype, subscription, statusCode);
                                 }else if("Error".equals(response.getString("Response"))){
                                     int errorCode = Integer.valueOf(response.getString("Code"));
                                     switch (errorCode){
