@@ -125,6 +125,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Test Name"/>
                     <TextView
                         android:id="@+id/homePageProfileText1"
@@ -135,6 +136,7 @@
                         android:textColor="#000000"
                         android:textSize="15dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Tap to see your profile"/>
                 </RelativeLayout>
                 <LinearLayout
@@ -198,6 +200,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Data4Help"/>
                     <TextView
                         android:id="@+id/homePageData4HelpSubText"
@@ -208,6 +211,7 @@
                         android:textColor="#000000"
                         android:textSize="15dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Health updates and caretaking"/>
                 </RelativeLayout>
                 <LinearLayout
@@ -273,6 +277,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="AutomatedSOS"/>
                     <TextView
                         android:id="@+id/homePageAutomatedSOSSubText"
@@ -283,6 +288,7 @@
                         android:textColor="#000000"
                         android:textSize="15dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="A lifesaver in your pocket"/>
                 </RelativeLayout>
                 <LinearLayout
@@ -346,6 +352,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Track4Run"/>
                     <TextView
                         android:id="@+id/homePageTrack4RunSubText"
@@ -356,6 +363,7 @@
                         android:textColor="#000000"
                         android:textSize="15dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Create, join or spectate events"/>
                 </RelativeLayout>
                 <LinearLayout
@@ -406,6 +414,7 @@
                             android:textSize="15dp"
                             android:paddingLeft="20dp"
                             android:layout_margin="10dp"
+                            android:fontFamily="@font/montserratlight"
                             android:text="People"/>
                     </RelativeLayout>
                     <LinearLayout

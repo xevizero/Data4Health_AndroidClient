@@ -80,6 +80,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Input the following data:"/>
 
             <EditText
@@ -136,6 +137,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Input your birthday down here:"/>
             <frassonlancellottilodi.data4health.utils.CustomDatePicker
                 android:layout_height="wrap_content"
@@ -154,6 +156,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Tap here and take a selfie to set a profile image!"/>
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -171,6 +174,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Your sex is:"/>
             <Spinner
                 android:layout_width="250dp"
@@ -185,6 +189,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Now choose a password:"/>
             <EditText
                 android:layout_height="wrap_content"
@@ -214,6 +219,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Check the following options:"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -230,6 +236,7 @@
                         android:textColor="@color/darkGrey"
                         android:textSize="20dp"
                         android:layout_margin="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Do you wish to activate AutomatedSOS?"/>
                 </RelativeLayout>
                 <RelativeLayout
@@ -261,6 +268,7 @@
                         android:textColor="@color/darkGrey"
                         android:textSize="20dp"
                         android:layout_margin="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Do you wish to access developer only features?"/>
                 </RelativeLayout>
                 <RelativeLayout
@@ -292,6 +300,7 @@
                         android:textColor="@color/darkGrey"
                         android:textSize="20dp"
                         android:layout_margin="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Do you wish to allow your data to be made available to third parties in anonymous form?"/>
                 </RelativeLayout>
                 <RelativeLayout
@@ -323,6 +332,7 @@
                         android:textColor="@color/darkGrey"
                         android:textSize="20dp"
                         android:layout_margin="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Agree to Terms and Conditions"/>
                 </RelativeLayout>
                 <RelativeLayout
@@ -354,6 +364,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="You're done! Tap Sign Up to register to Data4Health!"/>
 
             <RelativeLayout

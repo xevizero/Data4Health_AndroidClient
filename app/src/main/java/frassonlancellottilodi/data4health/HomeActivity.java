@@ -131,6 +131,8 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
 
         titleView = findViewById(R.id.titlehome);
 
+
+        //This code is setup to force the AutomatedSOS emergency call to start, for testing purposes only.
         titleView.setOnClickListener(v -> {
             final String emergencyType ="FALL";
             boolean locationAccurate = false;
@@ -150,7 +152,6 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         });
 
 
-        titleView.setTypeface(getTitleFont(this));
         profileButton = findViewById(R.id.homepageProfileButton);
         data4helpButton = findViewById(R.id.homepageData4HealthButton);
         notificationsButton = findViewById(R.id.homepageNotificationsButton);
@@ -162,6 +163,9 @@ public class HomeActivity extends FragmentActivity implements GoogleApiClient.Co
         automatedSOSButton = findViewById(R.id.homepageAutomatedSOSButton);
         automatedSOSIcon = findViewById(R.id.homepageAutomatedSOSIcon);
 
+
+
+        titleView.setTypeface(getTitleFont(this));
 
         setAutomatedSOSStatus(this, automatedSOSOn);
 

@@ -101,6 +101,7 @@
                     android:layout_centerVertical="true"
                     android:textColor="@color/darkGrey"
                     android:textSize="20dp"
+                    android:fontFamily="@font/montserratlight"
                     android:text="People you may know"/>
             </RelativeLayout>
             <LinearLayout

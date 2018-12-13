@@ -105,6 +105,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Not a user? Sign up here:"/>
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -132,6 +133,7 @@
                 android:textColor="@color/darkGrey"
                 android:textSize="20dp"
                 android:layout_margin="20dp"
+                android:fontFamily="@font/montserratlight"
                 android:text="Are you a developer? Additional functionality is available on our web portal."/>
             <RelativeLayout
                 android:layout_width="fill_parent"

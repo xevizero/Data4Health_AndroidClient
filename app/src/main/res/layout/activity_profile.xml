@@ -113,6 +113,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Test Name"/>
                     <TextView
                         android:id="@+id/profilePageProfileText1"
@@ -122,6 +123,7 @@
                         android:textAlignment="textEnd"
                         android:textColor="#000000"
                         android:textSize="15dp"
+                        android:fontFamily="@font/montserratlight"
                         android:layout_margin="5dp"
                         android:text="Sex, Age"/>
 
@@ -135,6 +137,7 @@
                         android:textColor="#000000"
                         android:paddingRight="30dp"
                         android:textSize="15dp"
+                        android:fontFamily="@font/montserratlight"
                         android:layout_margin="5dp"
                         android:text="Subscription status"/>
 
@@ -201,6 +204,7 @@
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:layout_margin="5dp"
                         android:text="Average Heartbeat\n(Today)"/>
                     <TextView
@@ -257,6 +261,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Total Steps\n(Today)"/>
                     <TextView
                         android:id="@+id/profilePageStepsSubText"
@@ -342,6 +347,7 @@
                         android:textColor="#000000"
                         android:textSize="20dp"
                         android:layout_margin="5dp"
+                        android:fontFamily="@font/montserratlight"
                         android:text="Last Alert\n(AutomatedSOS)"/>
                     <TextView
                         android:id="@+id/profilePageAlertsSubText"
@@ -415,6 +421,7 @@
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="20dp"
+                        android:fontFamily="@font/montserratlight"
                         android:layout_margin="5dp"
                         android:text=""/>
                     <Button
