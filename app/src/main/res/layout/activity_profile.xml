@@ -114,7 +114,7 @@
                         android:textSize="20dp"
                         android:layout_margin="5dp"
                         android:fontFamily="@font/montserratlight"
-                        android:text="Test Name"/>
+                        android:text=""/>
                     <TextView
                         android:id="@+id/profilePageProfileText1"
                         android:layout_width="match_parent"
@@ -125,7 +125,7 @@
                         android:textSize="15dp"
                         android:fontFamily="@font/montserratlight"
                         android:layout_margin="5dp"
-                        android:text="Sex, Age"/>
+                        android:text=""/>
 
                     <TextView
                         android:id="@+id/profilePageProfileText2"
@@ -217,7 +217,7 @@
                         android:textSize="20dp"
                         android:textStyle="bold"
                         android:layout_margin="5dp"
-                        android:text="89"/>
+                        android:text=""/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -273,7 +273,7 @@
                         android:textSize="20dp"
                         android:textStyle="bold"
                         android:layout_margin="5dp"
-                        android:text="3205"/>
+                        android:text=""/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"
