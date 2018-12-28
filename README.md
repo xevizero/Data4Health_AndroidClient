@@ -12,7 +12,7 @@ This here project contains two modules: the smartphone app, and the Wear OS app 
 You can start by importing this project in your Android Studio IDE. You can download Android Studio and the Android SDK from here: https://developer.android.com/studio/
 
 Keep in mind that the download and installation could take you a while. Once you're in Android Studio, before running the app make sure you
-have a server running from our Flask server project. You need to make sure that the two strings: "WEBSERVICE_IP" and "WEBSERVICE_PORT" in
+have a server running from our Flask server project. At the moment, the app is configured to connect to a remote server we are hosting online. You need to make sure that the two strings: "WEBSERVICE_IP" and "WEBSERVICE_PORT" in
 the "Endpoints" class found in the "frassonlancellottilodi.data4health.utils" package are right before running the app. We suggest 
 running the server with the
 ```
